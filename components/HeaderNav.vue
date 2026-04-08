@@ -2,13 +2,14 @@
   <header class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gold-500/20">
     <div class="container mx-auto px-4">
       <nav class="flex items-center justify-between py-4">
-        <div class="text-2xl font-bold gradient-text">UKWC</div>
+        <NuxtLink to="/" class="text-2xl font-bold gradient-text">UKWC</NuxtLink>
 
         <div class="hidden md:flex items-center space-x-8">
-          <a href="#billetterie" class="hover:text-gold-500 transition-colors">Billetterie</a>
-          <a href="#professeurs" class="hover:text-gold-500 transition-colors">Professeurs</a>
-          <a href="#dj" class="hover:text-gold-500 transition-colors">DJs</a>
-          <a href="#contact" class="hover:text-gold-500 transition-colors">Contact</a>
+          <NuxtLink to="/ukwc" class="hover:text-gold-500 transition-colors">UKWC 26</NuxtLink>
+          <NuxtLink to="/battle-kiz-qualifier" class="hover:text-gold-500 transition-colors">The Battle KIZ Qualifier</NuxtLink>
+          <NuxtLink to="/shop" class="hover:text-gold-500 transition-colors">Shop</NuxtLink>
+          <NuxtLink to="/partners" class="hover:text-gold-500 transition-colors">Partners</NuxtLink>
+          <NuxtLink to="/about" class="hover:text-gold-500 transition-colors">About Us</NuxtLink>
         </div>
 
         <div class="hidden md:block">
@@ -23,10 +24,11 @@
       </nav>
 
       <div v-if="isMenuOpen" class="md:hidden py-4 border-t border-gold-500/20">
-        <a href="#billetterie" class="block py-2 hover:text-gold-500">Billetterie</a>
-        <a href="#professeurs" class="block py-2 hover:text-gold-500">Professeurs</a>
-        <a href="#dj" class="block py-2 hover:text-gold-500">DJs</a>
-        <a href="#contact" class="block py-2 hover:text-gold-500">Contact</a>
+        <NuxtLink to="/ukwc" class="block py-2 hover:text-gold-500" @click="isMenuOpen = false">UKWC 26</NuxtLink>
+        <NuxtLink to="/battle-kiz-qualifier" class="block py-2 hover:text-gold-500" @click="isMenuOpen = false">The Battle KIZ Qualifier</NuxtLink>
+        <NuxtLink to="/shop" class="block py-2 hover:text-gold-500" @click="isMenuOpen = false">Shop</NuxtLink>
+        <NuxtLink to="/partners" class="block py-2 hover:text-gold-500" @click="isMenuOpen = false">Partners</NuxtLink>
+        <NuxtLink to="/about" class="block py-2 hover:text-gold-500" @click="isMenuOpen = false">About Us</NuxtLink>
       </div>
     </div>
   </header>

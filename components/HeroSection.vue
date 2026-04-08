@@ -55,18 +55,18 @@
         </p>
 
         <!-- Boutons côte à côte sur mobile, empilés sur desktop -->
-        <div class="flex flex-row gap-2 w-full justify-center md:flex-col md:items-end md:w-auto">
+        <div class="flex flex-row gap-2 w-full justify-center md:flex-row md:items-end md:w-auto">
           <a
             href="#billetterie"
             class="btn-primary text-center text-xs px-3 py-2 flex-1 max-w-[160px]
-                   md:text-base md:px-5 md:py-3 md:flex-none md:w-[220px] md:max-w-none"
+                   md:text-base md:px-5 md:py-3 md:flex-none md:w-[250px] md:max-w-none"
           >
             Réserver maintenant
           </a>
           <a
             href="#professeurs"
             class="btn-secondary text-center text-xs px-3 py-2 flex-1 max-w-[160px]
-                   md:text-base md:px-5 md:py-3 md:flex-none md:w-[220px] md:max-w-none"
+                   md:text-base md:px-5 md:py-3 md:flex-none md:w-[250px] md:max-w-none"
           >
             Découvrir les artistes
           </a>
