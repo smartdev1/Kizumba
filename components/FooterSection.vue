@@ -3,8 +3,8 @@
     <div class="container mx-auto">
       <div class="grid md:grid-cols-3 gap-8 mb-8">
         <div>
-          <h3 class="text-2xl font-bold gradient-text mb-4">Paris Kizomba Congress</h3>
-          <p class="text-gray-400">Paris Édition 2026</p>
+          <h3 class="text-2xl font-bold gradient-text mb-4">UKWC</h3>
+          <p class="text-gray-400">Édition 2026</p>
         </div>
 
         <div>
@@ -35,7 +35,7 @@
       </div>
 
       <div class="border-t border-gold-500/20 pt-8 text-center text-gray-400 text-sm">
-        <p>&copy; {{ new Date().getFullYear() }} Paris Kizomba Congress. Tous droits réservés.</p>
+        <p>&copy; {{ new Date().getFullYear() }} UKWC. Tous droits réservés.</p>
       </div>
     </div>
   </footer>

@@ -77,42 +77,47 @@
           </div>
 
           <div v-else class="p-6">
-            <!-- Event Details -->
-            <div class="bg-black/40 rounded-xl p-5 border border-white/5">
-              <div class="flex flex-wrap justify-between items-start gap-4 mb-4">
-                <div>
-                  <h3 class="text-2xl font-bold text-white mb-2" style="font-family:'Bebas Neue',sans-serif;">{{ selectedEventForCheckout.title }}</h3>
+            <!-- Event Details en deux colonnes -->
+            <div class="grid md:grid-cols-2 gap-6">
+              
+              <!-- Colonne 1 : Informations générales -->
+              <div class="bg-black/40 rounded-xl p-5 border border-white/5">
+                <h3 class="text-xl font-bold text-white mb-4" style="font-family:'Bebas Neue',sans-serif;">{{ selectedEventForCheckout.title }}</h3>
+                
+                <div class="space-y-3">
                   <p class="text-gold-400 font-semibold">
                     Prix: {{ formatPrice(selectedEventForCheckout.price || 0) }} FCFA par ticket
                   </p>
-                </div>
-                <div class="text-right bg-black/40 px-4 py-2 rounded-lg">
-                  <p class="text-white/50 text-xs uppercase tracking-wider">Places restantes</p>
-                  <p class="text-2xl font-bold text-green-400">
-                    {{ selectedEventForCheckout.capacity === 0
-                      ? '∞'
-                      : (selectedEventForCheckout.capacity - (selectedEventForCheckout.sold_count || 0)) }}
+                  
+                  <p class="flex items-center gap-2 text-white/70 text-sm">
+                    <span class="text-gold-400">📍</span> Lieu: {{ selectedEventForCheckout.location || 'Cotonou, Bénin' }}
+                  </p>
+                  
+                  <p class="flex items-center gap-2 text-white/70 text-sm">
+                    <span class="text-gold-400">📅</span> Début: {{ formatDate(selectedEventForCheckout.start_at) }}
+                  </p>
+                  
+                  <p class="flex items-center gap-2 text-white/70 text-sm">
+                    <span class="text-gold-400">📅</span> Fin: {{ formatDate(selectedEventForCheckout.end_at) }}
                   </p>
                 </div>
               </div>
-
-              <div class="grid md:grid-cols-2 gap-4 text-white/60 text-sm">
+              
+              <!-- Colonne 2 : Description en bullet points -->
+              <div class="bg-black/40 rounded-xl p-5 border border-white/5">
+                <h4 class="font-semibold text-gold-400 text-sm uppercase tracking-wider mb-3">Ce que comprend votre pass</h4>
                 <div class="space-y-2">
-                  <p class="flex items-center gap-2">📅 Début: {{ formatDate(selectedEventForCheckout.start_at) }}</p>
-                  <p class="flex items-center gap-2">📅 Fin: {{ formatDate(selectedEventForCheckout.end_at) }}</p>
-                </div>
-                <div class="space-y-2">
-                  <p class="flex items-center gap-2">📍 Lieu: {{ selectedEventForCheckout.location || 'À définir' }}</p>
-                  <p class="flex items-center gap-2">🎟️ Vendu: {{ selectedEventForCheckout.sold_count || 0 }}/{{
-                    selectedEventForCheckout.capacity === 0 ? '∞' : selectedEventForCheckout.capacity
-                  }}</p>
+                  <div v-for="feature in getEventFeatures(selectedEventForCheckout)" :key="feature" 
+                       class="flex items-start gap-2 text-white/70 text-sm">
+                    <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs mt-0.5 flex-shrink-0">✓</span>
+                    <span>{{ feature }}</span>
+                  </div>
+                  <div v-if="getEventFeatures(selectedEventForCheckout).length === 0" class="text-white/50 text-sm italic">
+                    Aucune information supplémentaire
+                  </div>
                 </div>
               </div>
-
-              <div v-if="selectedEventForCheckout.description" class="mt-4 p-4 bg-black/30 rounded-lg">
-                <h4 class="font-semibold text-gold-400 text-sm uppercase tracking-wider mb-2">Description</h4>
-                <p class="text-white/50 text-sm">{{ selectedEventForCheckout.description }}</p>
-              </div>
+              
             </div>
 
             <!-- Tickets Selection -->
@@ -302,7 +307,7 @@
                 </div>
 
                 <p class="text-xs text-white/30 flex items-center gap-1 mt-4">
-                  🔒 Paiement sécurisé via Flutterwave
+                  🔒 Paiement sécurisé via PayDunya
                 </p>
               </div>
             </div>
@@ -387,8 +392,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from '#app'
 import { useCartStore } from '~/stores/cart'
 import { useEventStore } from '~/stores/event'
-
-const { openPaymentModal } = useFlutterwave()
 
 const cartStore = useCartStore()
 const eventStore = useEventStore()
@@ -507,6 +510,35 @@ const formatDate = (isoString) => {
   }).format(new Date(isoString))
 }
 
+// ── Récupération des features depuis la description HTML ─────────────────────
+const getEventFeatures = (event) => {
+  if (!event.description) return []
+  
+  try {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = event.description
+    
+    const listItems = tempDiv.querySelectorAll('li')
+    
+    if (listItems.length > 0) {
+      return Array.from(listItems).map(li => li.textContent?.trim()).filter(Boolean)
+    }
+    
+    const text = tempDiv.textContent || tempDiv.innerText || ''
+    const lines = text.split('\n')
+      .filter(line => line.trim().startsWith('-') || line.trim().startsWith('•'))
+    
+    if (lines.length > 0) {
+      return lines.map(line => line.replace(/^[-•]\s*/, '').trim())
+    }
+    
+    return text.trim() ? [text.trim()] : []
+  } catch (error) {
+    console.error('Erreur parsing description:', error)
+    return []
+  }
+}
+
 // ── Actions événement ─────────────────────────────────────────────────────────
 const loadEventById = async (eventId) => {
   try {
@@ -568,6 +600,31 @@ const addEventTicketsToCart = () => {
 const removeItem = (itemId) => cartStore.removeItem(itemId)
 const clearError = () => { error.value = null }
 
+// ── Vérification du statut de paiement après retour ──────────────────────────
+const checkPaymentStatus = async (tx_ref) => {
+  try {
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    
+    const response = await $fetch(`/api/check-payment-status?tx_ref=${tx_ref}`)
+    
+    if (response.success && response.status === 'completed') {
+      orderSuccess.value = true
+      orderId.value = response.order_number
+      cartStore.clearCart()
+      
+      await navigateTo('/checkout/success', { replace: true })
+      return true
+    } else {
+      error.value = 'Le paiement a été effectué mais la confirmation prend du temps. Vous recevrez un email sous peu.'
+      return false
+    }
+  } catch (err) {
+    console.error('Erreur vérification statut:', err)
+    error.value = 'Commande en cours de traitement. Vous recevrez un email de confirmation.'
+    return false
+  }
+}
+
 // ── Soumission ────────────────────────────────────────────────────────────────
 const submitOrder = async () => {
   if (!canSubmit.value) return
@@ -576,7 +633,7 @@ const submitOrder = async () => {
   error.value = null
 
   try {
-    const tx_ref = `PKC-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+    const tx_ref = `UKWC-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
 
     const result = await $fetch('/api/create-payment', {
       method: 'POST',
@@ -610,11 +667,18 @@ const viewOrder = () => navigateTo(`/order/${orderId.value}`)
 // ── Initialisation ────────────────────────────────────────────────────────────
 onMounted(async () => {
   eventStore.cleanExpiredCache()
+  
+  const tx_ref = route.query.tx_ref
+  
+  if (tx_ref) {
+    loading.value = true
+    await checkPaymentStatus(tx_ref)
+    loading.value = false
+  }
+  
   const eventId = route.query.event_id
-  if (eventId) {
+  if (eventId && !route.path.includes('/checkout/success')) {
     await loadEventById(eventId)
-  } else {
-    error.value = "Aucun événement spécifié dans l'URL"
   }
 })
 </script>

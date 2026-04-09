@@ -67,7 +67,8 @@ export default defineEventHandler(async (event) => {
     actions: {
       cancel_url: `${config.public.wpApiUrl.replace('/wp-json', '')}/checkout?event_id=${cartItems[0]?.eventId}&cancelled=1`,
       return_url: `${config.public.wpApiUrl.replace('/wp-json', '')}/checkout/success?tx_ref=${tx_ref}`,
-      callback_url: `${config.public.wpApiUrl.replace('/wp-json', '')}/wp-json/eventflow/v1/payments/ipn`,
+      callback_url: `${config.public.wpApiUrl.replace('/wp-json', '')}/wp-json/eventflow/v1/payments/paydunya/ipn`,
+
     },
     custom_data: {
       tx_ref,
