@@ -270,8 +270,6 @@
 </template>
 
 <script setup>
-import HeroSection from '~/components/HeroSection.vue'
-
 const stats = [
   { value: '250+', label: 'Participants' },
   { value: '20+', label: 'Artistes internationaux' },

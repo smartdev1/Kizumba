@@ -38,28 +38,45 @@
           <div class="overflow-hidden">
             <div class="flex transition-transform duration-500 ease-out"
                  :style="{ transform: `translateX(-${eventPassCurrentIndex * 33.333}%)` }">
-              <div v-for="pass in eventPasses" :key="pass.name"
+              <!-- État de chargement -->
+              <div v-if="ticketsLoading" class="w-full flex-shrink-0 px-3 text-center py-20 text-white/40">
+                Chargement des billets...
+              </div>
+
+              <div v-for="pass in eventPasses" :key="pass.slug"
                    class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
-                <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
+                <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
+                     :class="{ 'opacity-50': !pass.is_available }">
                   <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
-                    <img :src="`/images/Event-pass.jpeg`" :alt="pass.name" class="w-full h-full object-cover" @error="e => e.target.style.display = 'none'"/>
-                    <span class="text-6xl text-gold-400 absolute" v-if="!pass.imageLoaded">🎟️</span>
+                    <img src="../images/Event-pass.jpeg" :alt="pass.name" class="w-full h-full object-cover" @error="e => e.target.style.display = 'none'"/>
+                    <span class="text-6xl text-gold-400 absolute">🎟️</span>
                     <div class="absolute top-3 right-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs">PASS</div>
+                    <div v-if="!pass.is_available" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <span class="text-red-400 font-bold uppercase text-sm">Épuisé</span>
+                    </div>
                   </div>
                   <div class="p-5 flex-1 flex flex-col">
                     <h3 class="font-black text-xl uppercase">{{ pass.name }}</h3>
                     <div class="mt-2">
-                      <span class="text-2xl font-bold text-gold-400">{{ pass.priceXOF.toLocaleString() }} XOF</span>
-                      <span class="text-white/40 text-sm ml-2">({{ pass.priceEUR }} €)</span>
+                      <span class="text-2xl font-bold text-gold-400">{{ pass.price.toLocaleString() }} {{ pass.currency }}</span>
                     </div>
+                    <div class="text-white/30 text-xs mt-1">{{ pass.available_stock }} place(s) restante(s)</div>
                     <div class="mt-4 space-y-2 flex-1">
-                      <div v-for="feature in pass.features.slice(0,3)" :key="feature" class="flex items-center gap-2 text-white/60 text-sm">
+                      <div v-for="item in (pass.includes ?? []).slice(0,3)" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
                         <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
-                        {{ feature }}
+                        {{ item }}
                       </div>
                     </div>
-                    <button class="mt-5 w-full py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-extrabold uppercase tracking-wider text-sm transition-all duration-300">
-                      Sélectionner
+                    <button
+                      @click="selectTicket(pass)"
+                      :disabled="!pass.is_available"
+                      class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300"
+                      :class="addedSlug === pass.slug
+                        ? 'bg-green-500 text-white'
+                        : pass.is_available
+                          ? 'bg-gold-500 hover:bg-gold-400 text-black'
+                          : 'bg-white/10 text-white/30 cursor-not-allowed'">
+                      {{ addedSlug === pass.slug ? '✓ Ajouté !' : pass.is_available ? 'Sélectionner' : 'Indisponible' }}
                     </button>
                   </div>
                 </div>
@@ -115,8 +132,11 @@
                         {{ feature }}
                       </div>
                     </div>
-                    <button class="mt-5 w-full py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-extrabold uppercase tracking-wider text-sm transition-all duration-300">
-                      Choisir
+                    <button
+                      @click="selectFullPassStay(option)"
+                      class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300"
+                      :class="addedSlug === 'fps-' + option.name ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
+                      {{ addedSlug === 'fps-' + option.name ? '✓ Ajouté !' : 'Choisir' }}
                     </button>
                   </div>
                 </div>
@@ -174,8 +194,11 @@
                     {{ feature }}
                   </div>
                 </div>
-                <button class="mt-5 w-full py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-extrabold uppercase tracking-wider text-sm transition-all duration-300">
-                  Personnaliser
+                <button
+                  @click="selectShapeExperience(option)"
+                  class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300"
+                  :class="addedSlug === 'sye-' + option.name ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
+                  {{ addedSlug === 'sye-' + option.name ? '✓ Ajouté !' : 'Personnaliser' }}
                 </button>
               </div>
             </div>
@@ -191,8 +214,11 @@
         <h2 class="text-4xl md:text-6xl font-black uppercase mb-8" style="font-family:'Bebas Neue',sans-serif;">
           Réservez <span class="gradient-text-gold">maintenant</span>
         </h2>
-        <button class="bg-gold-500 hover:bg-gold-400 text-black font-extrabold uppercase tracking-widest px-12 py-5 rounded-full transition-all shadow-xl shadow-gold-500/30 hover:-translate-y-1">
-          Acheter mes billets
+        <button
+          @click="goToCheckout"
+          :disabled="cartStore.isEmpty"
+          class="bg-gold-500 hover:bg-gold-400 text-black font-extrabold uppercase tracking-widest px-12 py-5 rounded-full transition-all shadow-xl shadow-gold-500/30 hover:-translate-y-1 disabled:opacity-40 disabled:cursor-not-allowed">
+          {{ cartStore.isEmpty ? 'Sélectionnez un billet' : `Commander (${cartStore.itemCount} billet${cartStore.itemCount > 1 ? 's' : ''})` }}
         </button>
         <p class="text-white/20 text-xs mt-6">Powered by Matsuri Corp</p>
       </div>
@@ -202,46 +228,92 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useCartStore } from '~/stores/cart'
 
-// =====================================================
-// EVENT PASS
-// =====================================================
-const eventPasses = ref([
-  { name: 'Full Pass', priceXOF: 120000, priceEUR: 183, features: ['Toutes les soirées & socials', 'Tous les workshops & Masterclasses', 'Tourisme', 'T-shirt UKWC'] },
-  { name: 'Parties & Classes', priceXOF: 70000, priceEUR: 106, features: ['Toutes les soirées & socials', 'Tous les workshops & Masterclasses'] },
-  { name: 'Parties Only', priceXOF: 45000, priceEUR: 68, features: ['Toutes les soirées & socials'] },
-  { name: 'Tourism', priceXOF: 55000, priceEUR: 84, features: ['Tourisme'] },
-  { name: 'Classes Only', priceXOF: 30000, priceEUR: 46, features: ['Tous les workshops & Masterclasses'] }
-])
+const { getTickets } = useApi()
+const cartStore = useCartStore()
+const router = useRouter()
+
+const { data: ticketsData, pending: ticketsLoading } = useAsyncData(
+  'shop-tickets',
+  () => getTickets(),
+)
+
+const eventPasses = computed(() =>
+  (ticketsData.value ?? []).filter((t) =>
+    ['Full Pass', 'Parties & Classes', 'Parties Only', 'Tourism', 'Classes Only'].includes(t.category)
+  )
+)
 
 const eventPassCurrentIndex = ref(0)
 const prevEventPass = () => { if (eventPassCurrentIndex.value > 0) eventPassCurrentIndex.value-- }
-const nextEventPass = () => { if (eventPassCurrentIndex.value < Math.ceil(eventPasses.value.length / 3) - 1) eventPassCurrentIndex.value++ }
+const nextEventPass = () => {
+  if (eventPassCurrentIndex.value < Math.ceil(eventPasses.value.length / 3) - 1)
+    eventPassCurrentIndex.value++
+}
 
-// =====================================================
-// FULL PASS & STAY
-// =====================================================
 const fullPassStayOptions = ref([
   { name: 'Single Standard', type: 'single', priceXOF: 355000, priceEUR: 541, features: ['1 Full pass', '1 appt chambre + salon standard', '1 petit dej / jour'], maxPersons: 2 },
-  { name: 'Single Premium', type: 'single', priceXOF: 390000, priceEUR: 594, features: ['1 Full pass', '1 appt chambre + salon premium', '1 petit dej / jour', 'Pack d’accueil', '1 t-shirt'], maxPersons: 2 },
-  { name: 'Single Luxury', type: 'single', priceXOF: 415000, priceEUR: 632, features: ['1 Full pass', '1 appt chambre + salon luxe', '1 petit dej / jour', 'Pack d’accueil', '1 t-shirt', 'Assistance'], maxPersons: 2 },
+  { name: 'Single Premium', type: 'single', priceXOF: 390000, priceEUR: 594, features: ['1 Full pass', '1 appt chambre + salon premium', '1 petit dej / jour', "Pack d'accueil", '1 t-shirt'], maxPersons: 2 },
+  { name: 'Single Luxury', type: 'single', priceXOF: 415000, priceEUR: 632, features: ['1 Full pass', '1 appt chambre + salon luxe', '1 petit dej / jour', "Pack d'accueil", '1 t-shirt', 'Assistance'], maxPersons: 2 },
   { name: 'Double Standard', type: 'couple', priceXOF: 515000, priceEUR: 785, features: ['2 Full pass', '1 appt chambre + salon standard', '2 petit dej / jour'], maxPersons: 2 },
-  { name: 'Double Premium', type: 'couple', priceXOF: 610000, priceEUR: 929, features: ['2 Full pass', 'Appartement 2 chambres + salon premium', '2 petit dej / jour', 'Pack d’accueil', '2 t-shirts'], maxPersons: 4 },
-  { name: 'Double Luxury', type: 'couple', priceXOF: 655000, priceEUR: 998, features: ['2 Full pass', 'Appartement 2 chambres + salon luxe', '2 petit dej / jour', 'Pack d’accueil', '2 t-shirts', 'Assistance'], maxPersons: 4 }
+  { name: 'Double Premium', type: 'couple', priceXOF: 610000, priceEUR: 929, features: ['2 Full pass', 'Appartement 2 chambres + salon premium', '2 petit dej / jour', "Pack d'accueil", '2 t-shirts'], maxPersons: 4 },
+  { name: 'Double Luxury', type: 'couple', priceXOF: 655000, priceEUR: 998, features: ['2 Full pass', 'Appartement 2 chambres + salon luxe', '2 petit dej / jour', "Pack d'accueil", '2 t-shirts', 'Assistance'], maxPersons: 4 }
 ])
-
 const fullPassStayCurrentIndex = ref(0)
 const prevFullPassStay = () => { if (fullPassStayCurrentIndex.value > 0) fullPassStayCurrentIndex.value-- }
-const nextFullPassStay = () => { if (fullPassStayCurrentIndex.value < Math.ceil(fullPassStayOptions.value.length / 3) - 1) fullPassStayCurrentIndex.value++ }
+const nextFullPassStay = () => {
+  if (fullPassStayCurrentIndex.value < Math.ceil(fullPassStayOptions.value.length / 3) - 1)
+    fullPassStayCurrentIndex.value++
+}
 
-// =====================================================
-// SHAPE YOUR EXPERIENCE
-// =====================================================
 const shapeExperienceOptions = ref([
-  { name: 'Standard', pricePerDayXOF: 30000, pricePerDayEUR: 46, features: ['1 chambre d’hôtel standard', '1 petit déjeuner / jour', 'Assistance standard'], maxPersons: 2 },
-  { name: 'Premium', pricePerDayXOF: 35000, pricePerDayEUR: 53, features: ['1 chambre d’hôtel premium', '1 petit déjeuner / jour', 'Assistance standard'], maxPersons: 2 }
+  { name: 'Standard', pricePerDayXOF: 30000, pricePerDayEUR: 46, features: ["1 chambre d'hôtel standard", '1 petit déjeuner / jour', 'Assistance standard'], maxPersons: 2 },
+  { name: 'Premium', pricePerDayXOF: 35000, pricePerDayEUR: 53, features: ["1 chambre d'hôtel premium", '1 petit déjeuner / jour', 'Assistance standard'], maxPersons: 2 }
 ])
+
+const addedSlug = ref(null)
+
+function selectTicket(ticket) {
+  if (!ticket.is_available) return
+  cartStore.addItem(ticket, 1)
+  addedSlug.value = ticket.slug
+  setTimeout(() => { addedSlug.value = null }, 1500)
+}
+
+function selectFullPassStay(option) {
+  // slug = fps-{single|double}-{standard|premium|luxury}
+  const prefix = option.name.startsWith('Double') ? 'double' : 'single'
+  const level  = option.name.split(' ')[1].toLowerCase()
+  const slug   = 'fps-' + prefix + '-' + level
+  cartStore.addItem({
+    slug,
+    name: 'Full Pass & Stay — ' + option.name,
+    price: option.priceXOF,
+    currency: 'XOF',
+    is_available: true,
+  }, 1)
+  addedSlug.value = 'fps-' + option.name
+  setTimeout(() => { addedSlug.value = null }, 1500)
+}
+
+function selectShapeExperience(option) {
+  const slug = 'sye-' + option.name.toLowerCase()
+  cartStore.addItem({
+    slug,
+    name: 'Shape Your Experience — ' + option.name,
+    price: option.pricePerDayXOF,
+    currency: 'XOF',
+    is_available: true,
+  }, 1)
+  addedSlug.value = 'sye-' + option.name
+  setTimeout(() => { addedSlug.value = null }, 1500)
+}
+
+function goToCheckout() {
+  router.push('/checkout')
+}
 </script>
 
 <style scoped>

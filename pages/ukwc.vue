@@ -39,7 +39,7 @@
             <span class="block text-[clamp(4rem,12vw,11rem)] leading-none tracking-tighter text-white/10">2026</span>
           </h1>
           <div class="flex flex-wrap gap-4 mt-8 animate-fade-up" style="animation-delay:0.4s">
-            <a href="#billetterie"
+            <a href="shop"
               class="bg-gold-500 hover:bg-gold-400 text-black font-extrabold uppercase tracking-widest px-8 py-4 rounded-full transition-all duration-300 shadow-lg shadow-gold-500/30 hover:-translate-y-1 text-sm">
               Réserver mes places
             </a>
@@ -81,7 +81,8 @@
       <div class="section-glow-left absolute inset-0 pointer-events-none" />
       <div class="container mx-auto px-6">
 
-        <div class="flex items-end justify-between mb-16 gap-6 flex-wrap">
+        <!-- En-tête section -->
+        <div class="flex items-end justify-between mb-10 gap-6 flex-wrap">
           <div>
             <div class="section-label mb-3">— 01</div>
             <h2 class="section-title">Artistes <span class="gradient-text-gold">internationaux</span></h2>
@@ -91,37 +92,88 @@
           </p>
         </div>
 
-        <!-- Artist grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div v-for="(artist, i) in artists" :key="artist.name"
-            class="artist-card group relative overflow-hidden rounded-2xl bg-white/5 border border-white/8 hover:border-gold-500/40 transition-all duration-500 cursor-pointer aspect-[3/4]">
-            <!-- Placeholder visual with SVG dancer silhouette -->
-            <div class="absolute inset-0 flex items-center justify-center"
-              :style="{ background: artistGradients[i % artistGradients.length] }">
-              <svg viewBox="0 0 80 120" class="w-2/3 opacity-30 group-hover:opacity-50 transition-opacity" fill="none">
-                <circle cx="40" cy="18" r="12" fill="#C9A84C"/>
-                <path d="M40 30 C35 45 30 55 32 72 C34 82 38 88 40 98" stroke="#C9A84C" stroke-width="4" stroke-linecap="round" fill="none"/>
-                <path d="M37 50 C26 46 18 42 10 36" stroke="#C9A84C" stroke-width="3" stroke-linecap="round" fill="none"/>
-                <path d="M40 48 C50 46 60 44 70 40" stroke="#C9A84C" stroke-width="3" stroke-linecap="round" fill="none"/>
-                <path d="M37 95 C32 106 28 112 24 118" stroke="#C9A84C" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-                <path d="M42 95 C46 106 50 112 54 118" stroke="#C9A84C" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-              </svg>
+        <!-- ── Onglets catégories ── -->
+        <div class="flex gap-3 mb-10">
+          <button
+            @click="activeArtistCategory = 'professeurs'"
+            class="artist-tab px-7 py-2.5 rounded-full font-black uppercase text-sm tracking-widest transition-all duration-200"
+            :class="activeArtistCategory === 'professeurs' ? 'artist-tab-active' : 'artist-tab-inactive'">
+            🎭 Professeurs
+          </button>
+          <button
+            @click="activeArtistCategory = 'djs'"
+            class="artist-tab px-7 py-2.5 rounded-full font-black uppercase text-sm tracking-widest transition-all duration-200"
+            :class="activeArtistCategory === 'djs' ? 'artist-tab-active' : 'artist-tab-inactive'">
+            🎧 DJs
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Carrousel ── -->
+      <div class="relative">
+        <!-- Fade edges -->
+        <div class="absolute left-0 top-0 bottom-4 w-20 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+        <div class="absolute right-0 top-0 bottom-4 w-20 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
+
+        <!-- Track -->
+        <div ref="carouselRef"
+          class="artist-track flex gap-6 overflow-x-auto scrollbar-none px-12 pb-6"
+          style="scroll-snap-type: x mandatory;">
+          <div
+            v-for="(artist, i) in currentArtists"
+            :key="artist.name"
+            class="artist-card group relative flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer"
+            style="width: calc((100vw - 8rem) / 4); max-width: 380px; min-width: 220px; aspect-ratio: 3/4; scroll-snap-align: start;">
+
+            <!-- Image -->
+            <div class="absolute inset-0">
+              <img
+                :src="artist.image"
+                :alt="artist.name"
+                class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                style="object-position: left top;"
+              />
             </div>
-            <!-- Image placeholder text -->
-            <div class="absolute top-3 right-3 text-[10px] text-white/20 font-mono">IMG</div>
-            <!-- Info overlay -->
-            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/60 to-transparent translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-              <div class="font-black uppercase text-sm leading-tight">{{ artist.name }}</div>
-              <div class="text-gold-400 text-xs mt-1">{{ artist.specialty }}</div>
-              <div class="text-white/40 text-xs">{{ artist.country }}</div>
+
+            <!-- Dégradé permanent bas -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+
+            <!-- Halo doré au hover -->
+            <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 group-hover:ring-gold-500/60 transition-all duration-300" />
+
+            <!-- Numéro -->
+            <div class="absolute top-4 left-4 text-[11px] font-black text-white/20 tracking-[0.3em]">
+              {{ String(i + 1).padStart(2, '0') }}
+            </div>
+
+            <!-- Info artiste -->
+            <div class="absolute bottom-0 left-0 right-0 p-6">
+              <div class="font-black uppercase text-lg leading-tight tracking-wide">{{ artist.name }}</div>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="inline-block h-px w-5 bg-gold-500/60"></span>
+                <span class="text-gold-400 text-xs font-bold tracking-wider">{{ artist.specialty }}</span>
+              </div>
+              <div class="text-white/40 text-xs mt-1 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                {{ artist.country }}
+              </div>
             </div>
           </div>
         </div>
 
-        <p class="text-center text-white/30 text-sm mt-8 italic">
-          + artistes à annoncer · Photos à venir
-        </p>
+        <!-- Flèches navigation -->
+        <button @click="scrollArtists(-1)"
+          class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/80 border border-gold-500/50 text-gold-400 hover:bg-gold-500 hover:text-black transition-all duration-200 flex items-center justify-center text-2xl font-bold">
+          &#8249;
+        </button>
+        <button @click="scrollArtists(1)"
+          class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/80 border border-gold-500/50 text-gold-400 hover:bg-gold-500 hover:text-black transition-all duration-200 flex items-center justify-center text-2xl font-bold">
+          &#8250;
+        </button>
       </div>
+
+      <p class="text-center text-white/30 text-sm mt-5 italic px-6">
+        + artistes à annoncer · Photos à venir
+      </p>
     </section>
 
     <!-- ═══════════════════════════════════════════════
@@ -437,7 +489,7 @@
         <h2 class="text-5xl md:text-7xl font-black uppercase mb-8" style="font-family:'Bebas Neue',sans-serif;">
           Réservez<br/><span class="gradient-text-gold">maintenant</span>
         </h2>
-        <NuxtLink to="/checkout"
+        <NuxtLink to="/shop"
           class="inline-block bg-gold-500 hover:bg-gold-400 text-black font-extrabold uppercase tracking-widest px-12 py-5 rounded-full transition-all duration-300 shadow-xl shadow-gold-500/30 hover:-translate-y-1 text-base">
           Acheter mes billets
         </NuxtLink>
@@ -448,9 +500,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import imgAurea      from '~/assets/images/AUREA & TRESOR .png'
+import imgOmowise    from '~/assets/images/OMOWISE & TENI.png'
+import imgQuinn      from '~/assets/images/QUINN WANG.png'
+import imgLedoux     from '~/assets/images/LEDOUX KINGSMAN.png'
+import imgYasuke     from '~/assets/images/YASUKE & KALINKA.png'
+import imgGazl       from '~/assets/images/GAZL & COLIBRI.png'
+import imgSaid       from '~/assets/images/SAID D STREET.png'
+import imgSean       from '~/assets/images/SEAN.png'
+import imgFofoJah    from '~/assets/images/DJ FOFO JAH.png'
+import imgGobedson   from '~/assets/images/DJ GOBEDSON.png'
+import imgMilkshake  from '~/assets/images/DJ MILKSHAKE.png'
+import imgThemoz     from '~/assets/images/DJ THEMOZ.png'
 
-const activeDay = ref(1)
+const activeDay             = ref(1)
+const carouselRef           = ref(null)
+const activeArtistCategory  = ref('professeurs')
+
+function scrollArtists(direction) {
+  if (!carouselRef.value) return
+  carouselRef.value.scrollBy({ left: direction * 960, behavior: 'smooth' })
+}
 
 const navSections = [
   { id: 'artistes',   label: '🎭 Artistes' },
@@ -461,26 +532,27 @@ const navSections = [
   { id: 'livret',     label: '📖 Livret d\'accueil' },
 ]
 
-const artists = [
-  { name: 'Artist 1', specialty: 'Kizomba', country: '🇵🇹 Portugal' },
-  { name: 'Artist 2', specialty: 'Urban Kiz', country: '🇫🇷 France' },
-  { name: 'Artist 3', specialty: 'Semba', country: '🇦🇴 Angola' },
-  { name: 'Artist 4', specialty: 'Afro Fusion', country: '🇧🇷 Brésil' },
-  { name: 'Artist 5', specialty: 'Kizomba', country: '🇨🇻 Cap-Vert' },
-  { name: 'Artist 6', specialty: 'Bachata', country: '🇩🇴 Rép. Dom.' },
-  { name: 'Artist 7', specialty: 'Zouk', country: '🇧🇷 Brésil' },
-  { name: 'Artist 8', specialty: 'Urban Kiz', country: '🇧🇪 Belgique' },
-  { name: 'Artist 9', specialty: 'Salsa', country: '🇨🇺 Cuba' },
-  { name: 'Artist 10', specialty: 'Kizomba', country: '🇧🇯 Bénin' },
+const professeurs = [
+  { name: 'Aurea & Tresor',   specialty: 'Kizomba',     country: '🇵🇹 Portugal',  image: imgAurea   },
+  { name: 'Omowise & Teni',   specialty: 'Urban Kiz',   country: '🇦🇴 Angola',    image: imgOmowise },
+  { name: 'Quinn Wang',       specialty: 'Kizomba',     country: '🇫🇷 France',    image: imgQuinn   },
+  { name: 'Ledoux Kingsman',  specialty: 'Afro Fusion', country: '🇧🇯 Bénin',     image: imgLedoux  },
+  { name: 'Yasuke & Kalinka', specialty: 'Semba',       country: '🇧🇪 Belgique',  image: imgYasuke  },
+  { name: 'Gazl & Colibri',   specialty: 'Urban Kiz',   country: '🇫🇷 France',    image: imgGazl    },
+  { name: 'Said D Street',    specialty: 'Kizomba',     country: '🇨🇻 Cap-Vert',  image: imgSaid    },
+  { name: 'Sean',             specialty: 'Afro Urban',  country: '🇬🇧 UK',         image: imgSean    },
 ]
 
-const artistGradients = [
-  'linear-gradient(135deg, #1a0e00 0%, #3d2200 100%)',
-  'linear-gradient(135deg, #0a1500 0%, #1a3000 100%)',
-  'linear-gradient(135deg, #12000a 0%, #2d001a 100%)',
-  'linear-gradient(135deg, #001015 0%, #002030 100%)',
-  'linear-gradient(135deg, #150a00 0%, #332200 100%)',
+const djs = [
+  { name: 'DJ Fofo Jah',  specialty: 'DJ Set', country: '🇧🇯 Bénin',    image: imgFofoJah   },
+  { name: 'DJ Gobedson',  specialty: 'DJ Set', country: '🇦🇴 Angola',    image: imgGobedson  },
+  { name: 'DJ Milkshake', specialty: 'DJ Set', country: '🇨🇻 Cap-Vert',  image: imgMilkshake },
+  { name: 'DJ Themoz',    specialty: 'DJ Set', country: '🌍 Afrique',    image: imgThemoz    },
 ]
+
+const currentArtists = computed(() =>
+  activeArtistCategory.value === 'djs' ? djs : professeurs
+)
 
 const programme = [
   {
@@ -689,11 +761,47 @@ const slotTypeClass = (type) => {
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Gold utilities */
+/* ── Carrousel artistes ──────────────────────────────── */
+.artist-card {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  will-change: transform;
+}
+
+/* Quand le track est survolé : les autres cards s'assombrissent et rétrécissent légèrement */
+.artist-track:hover .artist-card:not(:hover) {
+  opacity: 0.55;
+  transform: scale(0.96);
+}
+
+/* La card survolée s'élève légèrement */
+.artist-track .artist-card:hover {
+  transform: scale(1.04);
+  z-index: 10;
+}
+
+/* ── Onglets catégories artistes ─────────────────────── */
+.artist-tab-active {
+  background-color: #C9A84C;
+  color: #000;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+}
+
+.artist-tab-inactive {
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.artist-tab-inactive:hover {
+  border-color: rgba(201,168,76,0.5);
+  color: rgba(201,168,76,0.8);
+}
+
+/* Gold utilities (sans backslash pour éviter le bug Vite CSS) */
 .text-gold-400   { color: #F5D78A; }
 .bg-gold-400     { background-color: #F5D78A; }
 .bg-gold-500     { background-color: #C9A84C; }
-.hover\:bg-gold-400:hover { background-color: #F5D78A; }
+.btn-gold-hover:hover { background-color: #F5D78A; }
 .border-gold-500 { border-color: #C9A84C; }
-.shadow-gold-500\/30 { box-shadow: 0 10px 40px rgba(201,168,76,0.3); }
+.shadow-gold    { box-shadow: 0 10px 40px rgba(201,168,76,0.3); }
 </style>

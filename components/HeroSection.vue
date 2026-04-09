@@ -56,13 +56,13 @@
 
         <!-- Boutons côte à côte sur mobile, empilés sur desktop -->
         <div class="flex flex-row gap-2 w-full justify-center md:flex-row md:items-end md:w-auto">
-          <a
-            href="#billetterie"
+          <NuxtLink
+            to="/shop"
             class="btn-primary text-center text-xs px-3 py-2 flex-1 max-w-[160px]
                    md:text-base md:px-5 md:py-3 md:flex-none md:w-[250px] md:max-w-none"
           >
             Réserver maintenant
-          </a>
+          </NuxtLink>
           <a
             href="#professeurs"
             class="btn-secondary text-center text-xs px-3 py-2 flex-1 max-w-[160px]
@@ -115,10 +115,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
-import bgImage     from '~/assets/images/BACKGROUND.png'
-import imgAurea    from '~/assets/images/AUREA & TRESOR .png'
-import imgFofoJah  from '~/assets/images/DJ FOFO JAH.png'
-import imgGobedson from '~/assets/images/DJ GOBEDSON.png'
+import bgImage     from '~/assets/images/background.png'
+import imgAurea    from '~/assets/images/aurea-tresor.png'
+import imgFofoJah  from '~/assets/images/dj-fofo-jah.png'
+import imgGobedson from '~/assets/images/dj-gobedson.png'
 
 interface Slide {
   name: string

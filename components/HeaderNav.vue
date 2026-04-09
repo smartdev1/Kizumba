@@ -12,7 +12,18 @@
           <NuxtLink to="/about" class="hover:text-gold-500 transition-colors">About Us</NuxtLink>
         </div>
 
-        <div class="hidden md:block">
+        <!-- Panier + Décompte (desktop) -->
+        <div class="hidden md:flex items-center gap-4">
+          <NuxtLink to="/checkout" class="relative flex items-center gap-2 border border-gold-500/40 hover:border-gold-500 text-white/70 hover:text-white px-3 py-1.5 rounded-full transition-all duration-200 text-sm font-semibold">
+            <svg class="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <span>Commander</span>
+            <span v-if="cartStore.totalItems > 0"
+              class="absolute -top-1.5 -right-1.5 bg-gold-500 text-black text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">
+              {{ cartStore.totalItems }}
+            </span>
+          </NuxtLink>
           <CountdownTimer />
         </div>
 
@@ -29,13 +40,22 @@
         <NuxtLink to="/shop" class="block py-2 hover:text-gold-500" @click="isMenuOpen = false">Shop</NuxtLink>
         <NuxtLink to="/partners" class="block py-2 hover:text-gold-500" @click="isMenuOpen = false">Partners</NuxtLink>
         <NuxtLink to="/about" class="block py-2 hover:text-gold-500" @click="isMenuOpen = false">About Us</NuxtLink>
+        <NuxtLink to="/checkout" class="flex items-center gap-2 py-2 text-gold-500 font-semibold" @click="isMenuOpen = false">
+          🛒 Commander
+          <span v-if="cartStore.totalItems > 0" class="bg-gold-500 text-black text-xs font-black px-1.5 py-0.5 rounded-full">
+            {{ cartStore.totalItems }}
+          </span>
+        </NuxtLink>
       </div>
     </div>
   </header>
 </template>
 
 <script setup>
+import { useCartStore } from '~/stores/cart'
+
 const isMenuOpen = ref(false)
+const cartStore = useCartStore()
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value

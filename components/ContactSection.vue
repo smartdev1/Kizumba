@@ -32,17 +32,16 @@
           <div class="space-y-4">
             <div>
               <h4 class="font-semibold text-gold-500 mb-2">Lieu</h4>
-              <p class="text-gray-300">Hilton Paris Charles de Gaulle Airport</p>
-              <p class="text-gray-300">8 Rue de Rome</p>
-              <p class="text-gray-300">93290 Tremblay-en-France, France</p>
+              <p class="text-gray-300">Cotonou, Bénin</p>
+              <p class="text-gray-300">Afrique de l'Ouest</p>
             </div>
             <div>
               <h4 class="font-semibold text-gold-500 mb-2">Date</h4>
-              <p class="text-gray-300">19 - 23 Novembre 2026</p>
+              <p class="text-gray-300">14 – 19 Juillet 2026</p>
             </div>
             <div>
               <h4 class="font-semibold text-gold-500 mb-2">Contact</h4>
-              <p class="text-gray-300">pariskizombacongress@gmail.com</p>
+              <p class="text-gray-300">unitedkizdomworldcongress@gmail.com</p>
             </div>
           </div>
         </div>

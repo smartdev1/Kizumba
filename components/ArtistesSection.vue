@@ -3,7 +3,7 @@
     <div class="container mx-auto">
       <h2 class="section-title">Professeurs</h2>
       <p class="text-center text-gray-300 max-w-3xl mx-auto mb-12">
-        Des artistes de renommée internationale, réunis à Paris pour vous faire vibrer !
+        Des artistes de renommée internationale, réunis à Cotonou pour vous faire vibrer !
       </p>
 
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -19,7 +19,7 @@
     <div id="dj" class="container mx-auto mt-20">
       <h2 class="section-title">DJ'S</h2>
       <p class="text-center text-gray-300 max-w-3xl mx-auto mb-12">
-        Les meilleurs DJ's Kizomba du monde réunis à Paris !
+        Les meilleurs DJ's Kizomba du monde réunis à Cotonou !
       </p>
 
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
@@ -35,22 +35,34 @@
 </template>
 
 <script setup>
+import imgAurea       from '~/assets/images/AUREA & TRESOR .png'
+import imgOmowise     from '~/assets/images/OMOWISE & TENI.png'
+import imgQuinn       from '~/assets/images/QUINN WANG.png'
+import imgLedoux      from '~/assets/images/LEDOUX KINGSMAN.png'
+import imgYasuke      from '~/assets/images/YASUKE & KALINKA.png'
+import imgGazl        from '~/assets/images/GAZL & COLIBRI.png'
+import imgSaid        from '~/assets/images/SAID D STREET.png'
+import imgSean        from '~/assets/images/SEAN.png'
+import imgFofoJah     from '~/assets/images/DJ FOFO JAH.png'
+import imgGobedson    from '~/assets/images/DJ GOBEDSON.png'
+import imgMilkshake   from '~/assets/images/DJ MILKSHAKE.png'
+import imgThemoz      from '~/assets/images/DJ THEMOZ.png'
+
 const professeurs = [
-  { name: 'Adilson & Telma', image: 'https://images.pexels.com/photos/1679618/pexels-photo-1679618.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'Jesus & Anni', image: 'https://images.pexels.com/photos/1679825/pexels-photo-1679825.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'Fred Nelson', image: 'https://images.pexels.com/photos/1708936/pexels-photo-1708936.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'Chamalo', image: 'https://images.pexels.com/photos/1752806/pexels-photo-1752806.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'Gwany', image: 'https://images.pexels.com/photos/1114690/pexels-photo-1114690.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'Asia Voronova', image: 'https://images.pexels.com/photos/1729931/pexels-photo-1729931.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'Claudio', image: 'https://images.pexels.com/photos/1024311/pexels-photo-1024311.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'Audi & Laura', image: 'https://images.pexels.com/photos/1191422/pexels-photo-1191422.jpeg?auto=compress&cs=tinysrgb&w=400' },
+  { name: 'Aurea & Tresor',    image: imgAurea    },
+  { name: 'Omowise & Teni',    image: imgOmowise  },
+  { name: 'Quinn Wang',        image: imgQuinn    },
+  { name: 'Ledoux Kingsman',   image: imgLedoux   },
+  { name: 'Yasuke & Kalinka',  image: imgYasuke   },
+  { name: 'Gazl & Colibri',    image: imgGazl     },
+  { name: 'Said D Street',     image: imgSaid     },
+  { name: 'Sean',              image: imgSean     },
 ]
 
 const djs = [
-  { name: 'DJ Jazzy', image: 'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'DJ Fred', image: 'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'DJ Paraiso', image: 'https://images.pexels.com/photos/1699161/pexels-photo-1699161.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'DJ Chanchan', image: 'https://images.pexels.com/photos/1481309/pexels-photo-1481309.jpeg?auto=compress&cs=tinysrgb&w=400' },
-  { name: 'DJ Ichigo', image: 'https://images.pexels.com/photos/1644888/pexels-photo-1644888.jpeg?auto=compress&cs=tinysrgb&w=400' },
+  { name: 'DJ Fofo Jah',   image: imgFofoJah   },
+  { name: 'DJ Gobedson',   image: imgGobedson  },
+  { name: 'DJ Milkshake',  image: imgMilkshake },
+  { name: 'DJ Themoz',     image: imgThemoz    },
 ]
 </script>
