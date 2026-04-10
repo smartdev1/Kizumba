@@ -109,11 +109,11 @@
               </div>
               <div>
                 <label class="label-field">Pays</label>
-                <input v-model="form.country" type="text" placeholder="France" class="admin-input" />
+                <input v-model="form.country" type="text" placeholder="Bénin" class="admin-input" />
               </div>
               <div>
                 <label class="label-field">Drapeau (emoji)</label>
-                <input v-model="form.country_flag" type="text" placeholder="🇫🇷" class="admin-input text-xl" />
+                <input v-model="form.country_flag" type="text" placeholder="🇧🇯" class="admin-input text-xl" />
               </div>
               <div class="col-span-2">
                 <label class="label-field">Instagram</label>

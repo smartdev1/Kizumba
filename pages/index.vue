@@ -2,7 +2,7 @@
   <div class="bg-black text-white">
     <HeroSection />
     <BilletterieSection />
-    <ArtistesSection />
+    <!-- <ArtistesSection /> -->
     <ContactSection />
   </div>
 </template>
@@ -11,7 +11,7 @@
 useHead({
   title: 'United Kizdom World Congress 2026 - Festival Kizomba à Cotonou',
   meta: [
-    { name: 'description', content: 'Le plus grand événement Kizomba du Bénin. Du 19 au 23 novembre 2026.' }
+    { name: 'description', content: 'Le plus grand événement Kizomba du Bénin. Du 14 au 19 juillet 2026.' }
   ]
 })
 </script>

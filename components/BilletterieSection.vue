@@ -8,7 +8,7 @@
         <span class="text-[#C9A032]">Congress 2026</span>
       </h2>
       <p class="text-gray-400 text-lg mb-4">
-        19 – 23 novembre 2026 · Hilton Paris Charles de Gaulle Airport
+        19 – 23 Juillet 2026 · Cotonou, Bénin
       </p>
 
       <div class="flex flex-wrap justify-center gap-3 mb-12 text-sm text-white/70">

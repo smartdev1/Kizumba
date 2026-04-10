@@ -17,8 +17,8 @@ export const useEventStore = defineStore('event', {
     // Info statique du festival
     eventInfo: {
       name: 'United Kizdom World Congress',
-      location: 'Hilton Paris Charles de Gaulle Airport',
-      address: '8 Rue de Rome, 93290 Tremblay-en-France, France',
+      location: 'Cotonou, Bénin',
+      address: 'Cotonou, Bénin',
       startDate: '2026-07-14',
       endDate: '2026-07-19',
       // Timestamp calculé une fois côté client pour éviter les problèmes SSR
