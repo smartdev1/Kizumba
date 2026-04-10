@@ -119,6 +119,14 @@ import bgImage     from '~/assets/images/background.png'
 import imgAurea    from '~/assets/images/aurea-tresor.png'
 import imgFofoJah  from '~/assets/images/dj-fofo-jah.png'
 import imgGobedson from '~/assets/images/dj-gobedson.png'
+import imgTheMoz from '~/assets/images/dj-themoz.png'
+import imgMilkshake from '~/assets/images/dj-milkshake.png'
+import imgLedouxKingsman from '~/assets/images/ledoux-kingsman.png'
+import imgQuinnWang from '~/assets/images/quinn-wang.png'
+import imgSean from '~/assets/images/sean.png'
+import imgOmowise from '~/assets/images/omowise-teni.png'
+import imgSaid from '~/assets/images/said-d-street.png'
+import imgYasuke from '~/assets/images/yasuke-kalinka.png'
 
 interface Slide {
   name: string
@@ -128,7 +136,15 @@ interface Slide {
 const slides: Slide[] = [
   { name: 'Aurea & Tresor', image: imgAurea    },
   { name: 'DJ Fofo Jah',    image: imgFofoJah  },
+  { name: 'Ledoux Kingsman',    image: imgLedouxKingsman },
   { name: 'DJ Gobedson',    image: imgGobedson },
+  { name: 'Quinn Wang',    image: imgQuinnWang },
+  { name: 'DJ TheMoz',    image: imgTheMoz },
+  { name: 'Said D Street',    image: imgSaid },
+  { name: 'DJ Milkshake',    image: imgMilkshake },
+  { name: 'Sean',    image: imgSean },
+  { name: 'Omowise & Teni',    image: imgOmowise },
+  { name: 'Yasuke & Kalinka',    image: imgYasuke },
 ]
 
 const current    = ref(0)
