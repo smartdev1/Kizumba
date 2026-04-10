@@ -57,11 +57,13 @@ class TicketImageService
         $qrW        = imagesx($qrResource);
         $qrH        = imagesy($qrResource);
 
-        // --- Paramètres de positionnement (à ajuster selon le template) ---
-        // Centre de la zone blanche en pourcentage de l'image
-        $qrCenterXRatio = 0.875; // 87.5% depuis la gauche
-        $qrCenterYRatio = 0.60;  // 60% depuis le haut
-        $qrSizeRatio    = 0.185; // QR = 18.5% de la largeur du template
+        // --- Paramètres de positionnement ---
+        // Zone blanche ≈ x:77–98%, y:24–86% de l'image (calculé sur 1890×591px)
+        $qrCenterXRatio = 0.840; // centre horizontal de la zone blanche
+        $qrCenterYRatio = 0.59;  // centre vertical de la zone blanche
+        // QR = 14% de la largeur → ~265px sur 1890px
+        // Zone blanche ≈ 370px de haut → box+padding ≈ 297px → ~36px de marge de chaque côté
+        $qrSizeRatio    = 0.16;
 
         $qrTargetSize = (int) ($tW * $qrSizeRatio);
 
@@ -71,7 +73,7 @@ class TicketImageService
         imagedestroy($qrResource);
 
         // --- Fond blanc avec marges autour du QR ---
-        $padding = (int) ($qrTargetSize * 0.06);
+        $padding = 12; // px fixes — indépendant de la taille du QR
         $boxSize = $qrTargetSize + $padding * 2;
         $box     = imagecreatetruecolor($boxSize, $boxSize);
         $white   = imagecolorallocate($box, 255, 255, 255);
