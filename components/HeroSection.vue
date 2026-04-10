@@ -3,7 +3,7 @@
 
     <!-- Background fixe -->
     <div
-      class="absolute inset-0 bg-cover bg-center z-0"
+      class="absolute inset-0 bg-cover bg-bottom z-0"
       :style="{ backgroundImage: `url(${bgImage})` }"
     ></div>
     <div class="absolute inset-0 bg-black/45 z-0"></div>
