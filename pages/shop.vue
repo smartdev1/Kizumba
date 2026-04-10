@@ -34,65 +34,77 @@
           <h2 class="section-title">Event <span class="gradient-text-gold">Pass</span></h2>
         </div>
 
-        <div class="relative">
-          <div class="overflow-hidden">
-            <div class="flex transition-transform duration-500 ease-out"
-                 :style="{ transform: `translateX(-${eventPassCurrentIndex * 33.333}%)` }">
-              <!-- État de chargement -->
-              <div v-if="ticketsLoading" class="w-full flex-shrink-0 px-3 text-center py-20 text-white/40">
-                Chargement des billets...
-              </div>
+        <!-- Chargement -->
+        <div v-if="ticketsLoading" class="text-center py-20 text-white/40">Chargement des billets...</div>
 
-              <div v-for="pass in eventPasses" :key="pass.slug"
-                   class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
-                <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
-                     :class="{ 'opacity-50': !pass.is_available }">
-                  <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
-                    <img v-if="pass.image_url" :src="pass.image_url" :alt="pass.name" class="w-full h-full object-cover" />
-                    <span v-else class="text-6xl text-gold-400 absolute">🎟️</span>
-                    <div class="absolute top-3 right-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs">PASS</div>
-                    <div v-if="!pass.is_available" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-                      <span class="text-red-400 font-bold uppercase text-sm">Épuisé</span>
-                    </div>
-                  </div>
-                  <div class="p-5 flex-1 flex flex-col">
-                    <h3 class="font-black text-xl uppercase">{{ pass.name }}</h3>
-                    <div class="mt-2">
-                      <span class="text-2xl font-bold text-gold-400">{{ pass.price.toLocaleString() }} {{ pass.currency }}</span>
-                    </div>
-                    <div class="text-white/30 text-xs mt-1">{{ pass.available_stock }} place(s) restante(s)</div>
-                    <div class="mt-4 space-y-2 flex-1">
-                      <div v-for="item in (pass.includes ?? []).slice(0,3)" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
-                        <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
-                        {{ item }}
+        <!-- Coming Soon -->
+        <div v-else-if="eventPasses.length === 0" class="coming-soon-block">
+          <div class="coming-soon-icon">🎟️</div>
+          <div class="coming-soon-title gradient-text-gold">Coming Soon</div>
+          <p class="coming-soon-sub">Les billets Event Pass seront bientôt disponibles.</p>
+        </div>
+
+        <!-- Carousel -->
+        <template v-else>
+          <div class="relative">
+            <div class="overflow-hidden">
+              <div class="flex transition-transform duration-500 ease-out"
+                   :style="{ transform: `translateX(-${eventPassCurrentIndex * 33.333}%)` }">
+                <div v-for="pass in eventPasses" :key="pass.slug"
+                     class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
+                  <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
+                       :class="{ 'opacity-50': !pass.is_available }">
+                    <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
+                      <img v-if="pass.image_url" :src="pass.image_url" :alt="pass.name" class="w-full h-full object-cover" />
+                      <span v-else class="text-6xl text-gold-400 absolute">🎟️</span>
+                      <div class="absolute top-3 right-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs">PASS</div>
+                      <div v-if="pass.is_early_bird" class="absolute top-3 left-3 bg-gold-500 text-black text-xs font-black px-2 py-1 rounded uppercase tracking-wide">
+                        🐦 Early Bird
+                      </div>
+                      <div v-if="!pass.is_available" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span class="text-red-400 font-bold uppercase text-sm">Épuisé</span>
                       </div>
                     </div>
-                    <button
-                      @click="selectTicket(pass)"
-                      :disabled="!pass.is_available"
-                      class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300"
-                      :class="addedSlug === pass.slug
-                        ? 'bg-green-500 text-white'
-                        : pass.is_available
-                          ? 'bg-gold-500 hover:bg-gold-400 text-black'
-                          : 'bg-white/10 text-white/30 cursor-not-allowed'">
-                      {{ addedSlug === pass.slug ? '✓ Ajouté !' : pass.is_available ? 'Sélectionner' : 'Indisponible' }}
-                    </button>
+                    <div class="p-5 flex-1 flex flex-col">
+                      <h3 class="font-black text-xl uppercase">{{ pass.name }}</h3>
+                      <div class="mt-2 flex items-baseline gap-2 flex-wrap">
+                        <span class="text-2xl font-bold text-gold-400">{{ (pass.effective_price ?? pass.price).toLocaleString() }} {{ pass.currency }}</span>
+                        <span v-if="pass.is_early_bird" class="text-sm text-white/30 line-through">{{ pass.price.toLocaleString() }}</span>
+                      </div>
+                      <div class="text-white/30 text-xs mt-1">{{ pass.available_stock }} place(s) restante(s)</div>
+                      <div class="mt-4 space-y-2 flex-1">
+                        <div v-for="item in (pass.includes ?? []).slice(0,3)" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
+                          <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
+                          {{ item }}
+                        </div>
+                      </div>
+                      <button
+                        @click="selectTicket(pass)"
+                        :disabled="!pass.is_available"
+                        class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300"
+                        :class="addedSlug === pass.slug
+                          ? 'bg-green-500 text-white'
+                          : pass.is_available
+                            ? 'bg-gold-500 hover:bg-gold-400 text-black'
+                            : 'bg-white/10 text-white/30 cursor-not-allowed'">
+                        {{ addedSlug === pass.slug ? '✓ Ajouté !' : pass.is_available ? 'Sélectionner' : 'Indisponible' }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <button @click="prevEventPass" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">◀</button>
+            <button @click="nextEventPass" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">▶</button>
           </div>
-          <button @click="prevEventPass" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">◀</button>
-          <button @click="nextEventPass" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">▶</button>
-        </div>
-        <div class="flex justify-center gap-2 mt-8">
-          <button v-for="(_, idx) in Math.ceil(eventPasses.length / 3)" :key="idx"
-                  @click="eventPassCurrentIndex = idx"
-                  class="w-2 h-2 rounded-full transition-all"
-                  :class="eventPassCurrentIndex === idx ? 'w-6 bg-gold-500' : 'bg-white/30'">
-          </button>
-        </div>
+          <div class="flex justify-center gap-2 mt-8">
+            <button v-for="(_, idx) in Math.ceil(eventPasses.length / 3)" :key="idx"
+                    @click="eventPassCurrentIndex = idx"
+                    class="w-2 h-2 rounded-full transition-all"
+                    :class="eventPassCurrentIndex === idx ? 'w-6 bg-gold-500' : 'bg-white/30'">
+            </button>
+          </div>
+        </template>
       </div>
     </section>
 
@@ -107,59 +119,73 @@
           <p class="text-white/40 text-sm mt-2">⚠️ Réservation avant le 15 juin</p>
         </div>
 
-        <div class="relative">
-          <div class="overflow-hidden">
-            <div class="flex transition-transform duration-500 ease-out"
-                 :style="{ transform: `translateX(-${fullPassStayCurrentIndex * 33.333}%)` }">
-              <div v-if="ticketsLoading" class="w-full flex-shrink-0 px-3 text-center py-20 text-white/40">
-                Chargement...
-              </div>
-              <div v-for="ticket in fullPassStayTickets" :key="ticket.slug"
-                   class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
-                <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
-                     :class="{ 'opacity-50': !ticket.is_available }">
-                  <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
-                    <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name" class="w-full h-full object-cover" />
-                    <span v-else class="text-6xl text-gold-400 absolute">🏨</span>
-                    <div class="absolute top-3 right-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs">PASS</div>
-                    <div v-if="!ticket.is_available" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-                      <span class="text-red-400 font-bold uppercase text-sm">Épuisé</span>
-                    </div>
-                  </div>
-                  <div class="p-5 flex-1 flex flex-col">
-                    <h3 class="font-black text-xl uppercase">{{ ticket.name }}</h3>
-                    <div class="mt-2">
-                      <span class="text-2xl font-bold text-gold-400">{{ ticket.price.toLocaleString() }} {{ ticket.currency }}</span>
-                    </div>
-                    <div class="text-white/30 text-xs mt-1">{{ ticket.available_stock }} place(s) restante(s)</div>
-                    <div class="mt-4 space-y-2 flex-1">
-                      <div v-for="item in (ticket.includes ?? []).slice(0,3)" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
-                        <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
-                        {{ item }}
+        <!-- Chargement -->
+        <div v-if="ticketsLoading" class="text-center py-20 text-white/40">Chargement...</div>
+
+        <!-- Coming Soon -->
+        <div v-else-if="fullPassStayTickets.length === 0" class="coming-soon-block">
+          <div class="coming-soon-icon">🏨</div>
+          <div class="coming-soon-title gradient-text-gold">Coming Soon</div>
+          <p class="coming-soon-sub">Les offres Full Pass & Stay seront bientôt disponibles.</p>
+        </div>
+
+        <!-- Carousel -->
+        <template v-else>
+          <div class="relative">
+            <div class="overflow-hidden">
+              <div class="flex transition-transform duration-500 ease-out"
+                   :style="{ transform: `translateX(-${fullPassStayCurrentIndex * 33.333}%)` }">
+                <div v-for="ticket in fullPassStayTickets" :key="ticket.slug"
+                     class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
+                  <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
+                       :class="{ 'opacity-50': !ticket.is_available }">
+                    <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
+                      <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name" class="w-full h-full object-cover" />
+                      <span v-else class="text-6xl text-gold-400 absolute">🏨</span>
+                      <div class="absolute top-3 right-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs">PASS</div>
+                      <div v-if="ticket.is_early_bird" class="absolute top-3 left-3 bg-gold-500 text-black text-xs font-black px-2 py-1 rounded uppercase tracking-wide">
+                        🐦 Early Bird
+                      </div>
+                      <div v-if="!ticket.is_available" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span class="text-red-400 font-bold uppercase text-sm">Épuisé</span>
                       </div>
                     </div>
-                    <button
-                      @click="selectTicket(ticket)"
-                      :disabled="!ticket.is_available"
-                      class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
-                      :class="addedSlug === ticket.slug ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
-                      {{ addedSlug === ticket.slug ? '✓ Ajouté !' : 'Choisir' }}
-                    </button>
+                    <div class="p-5 flex-1 flex flex-col">
+                      <h3 class="font-black text-xl uppercase">{{ ticket.name }}</h3>
+                      <div class="mt-2 flex items-baseline gap-2 flex-wrap">
+                        <span class="text-2xl font-bold text-gold-400">{{ (ticket.effective_price ?? ticket.price).toLocaleString() }} {{ ticket.currency }}</span>
+                        <span v-if="ticket.is_early_bird" class="text-sm text-white/30 line-through">{{ ticket.price.toLocaleString() }}</span>
+                      </div>
+                      <div class="text-white/30 text-xs mt-1">{{ ticket.available_stock }} place(s) restante(s)</div>
+                      <div class="mt-4 space-y-2 flex-1">
+                        <div v-for="item in (ticket.includes ?? []).slice(0,3)" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
+                          <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
+                          {{ item }}
+                        </div>
+                      </div>
+                      <button
+                        @click="selectTicket(ticket)"
+                        :disabled="!ticket.is_available"
+                        class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                        :class="addedSlug === ticket.slug ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
+                        {{ addedSlug === ticket.slug ? '✓ Ajouté !' : 'Choisir' }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <button @click="prevFullPassStay" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">◀</button>
+            <button @click="nextFullPassStay" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">▶</button>
           </div>
-          <button @click="prevFullPassStay" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">◀</button>
-          <button @click="nextFullPassStay" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">▶</button>
-        </div>
-        <div class="flex justify-center gap-2 mt-8">
-          <button v-for="(_, idx) in Math.ceil(fullPassStayTickets.length / 3)" :key="idx"
-                  @click="fullPassStayCurrentIndex = idx"
-                  class="w-2 h-2 rounded-full transition-all"
-                  :class="fullPassStayCurrentIndex === idx ? 'w-6 bg-gold-500' : 'bg-white/30'">
-          </button>
-        </div>
+          <div class="flex justify-center gap-2 mt-8">
+            <button v-for="(_, idx) in Math.ceil(fullPassStayTickets.length / 3)" :key="idx"
+                    @click="fullPassStayCurrentIndex = idx"
+                    class="w-2 h-2 rounded-full transition-all"
+                    :class="fullPassStayCurrentIndex === idx ? 'w-6 bg-gold-500' : 'bg-white/30'">
+            </button>
+          </div>
+        </template>
       </div>
     </section>
 
@@ -181,7 +207,17 @@
           </p>
         </div>
 
+        <!-- Chargement -->
         <div v-if="ticketsLoading" class="text-center py-16 text-white/40">Chargement...</div>
+
+        <!-- Coming Soon -->
+        <div v-else-if="shapeExperienceTickets.length === 0" class="coming-soon-block">
+          <div class="coming-soon-icon">🏝️</div>
+          <div class="coming-soon-title gradient-text-gold">Coming Soon</div>
+          <p class="coming-soon-sub">Les options Shape Your Experience seront bientôt disponibles.</p>
+        </div>
+
+        <!-- Grille de tickets -->
         <div v-else class="flex flex-col md:flex-row justify-center gap-8 max-w-4xl mx-auto">
           <div v-for="ticket in shapeExperienceTickets" :key="ticket.slug" class="flex-1">
             <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1"
@@ -189,14 +225,18 @@
               <div class="h-40 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
                 <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name" class="w-full h-full object-cover" />
                 <span v-else class="text-5xl text-gold-400 absolute">🏝️</span>
+                <div v-if="ticket.is_early_bird" class="absolute top-3 left-3 bg-gold-500 text-black text-xs font-black px-2 py-1 rounded uppercase tracking-wide">
+                  🐦 Early Bird
+                </div>
                 <div v-if="!ticket.is_available" class="absolute inset-0 bg-black/60 flex items-center justify-center">
                   <span class="text-red-400 font-bold uppercase text-sm">Épuisé</span>
                 </div>
               </div>
               <div class="p-5">
                 <h3 class="font-black text-xl uppercase">{{ ticket.name }}</h3>
-                <div class="mt-2">
-                  <span class="text-2xl font-bold text-gold-400">{{ ticket.price.toLocaleString() }} {{ ticket.currency }}</span>
+                <div class="mt-2 flex items-baseline gap-2 flex-wrap">
+                  <span class="text-2xl font-bold text-gold-400">{{ (ticket.effective_price ?? ticket.price).toLocaleString() }} {{ ticket.currency }}</span>
+                  <span v-if="ticket.is_early_bird" class="text-sm text-white/30 line-through">{{ ticket.price.toLocaleString() }}</span>
                 </div>
                 <div class="text-white/30 text-xs mt-1">{{ ticket.available_stock }} place(s) restante(s)</div>
                 <div class="mt-4 space-y-2">
@@ -337,4 +377,33 @@ function goToCheckout() {
 .hover\:bg-gold-400:hover { background-color: #F5D78A; }
 .border-gold-500 { border-color: #C9A84C; }
 .shadow-gold-500\/30 { box-shadow: 0 10px 40px rgba(201,168,76,0.3); }
+
+.coming-soon-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 1rem;
+  border: 1px dashed rgba(201,168,76,0.25);
+  border-radius: 1.5rem;
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201,168,76,0.04) 0%, transparent 80%);
+}
+.coming-soon-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.4;
+}
+.coming-soon-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.coming-soon-sub {
+  margin-top: 0.75rem;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.85rem;
+  text-align: center;
+}
 </style>

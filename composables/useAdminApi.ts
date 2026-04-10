@@ -94,6 +94,13 @@ export function useAdminApi() {
   const deleteArtist = (id: number) => api<any>(`/admin/artists/${id}`, { method: 'DELETE' })
   const toggleArtist = (id: number) => api<any>(`/admin/artists/${id}/toggle`, { method: 'PATCH' })
 
+  // ── Codes promo ───────────────────────────────────────
+  const getPromoCodes  = ()          => api<any>('/admin/promo-codes')
+  const createPromoCode = (body: any) => api<any>('/admin/promo-codes', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+  const updatePromoCode = (id: number, body: any) => api<any>(`/admin/promo-codes/${id}`, { method: 'PUT', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+  const deletePromoCode = (id: number) => api<any>(`/admin/promo-codes/${id}`, { method: 'DELETE' })
+  const togglePromoCode = (id: number) => api<any>(`/admin/promo-codes/${id}/toggle`, { method: 'PATCH' })
+
   // ── Commandes ─────────────────────────────────────────
   const getOrders = (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
@@ -109,6 +116,7 @@ export function useAdminApi() {
     getDashboard,
     getTickets, createTicket, updateTicket, deleteTicket, toggleTicket,
     getArtists, createArtist, updateArtist, deleteArtist, toggleArtist,
+    getPromoCodes, createPromoCode, updatePromoCode, deletePromoCode, togglePromoCode,
     getOrders, getOrder, resendTickets, validateTicket,
   }
 }

@@ -28,10 +28,13 @@
             </span>
           </div>
           <!-- Badge statut -->
-          <div class="absolute top-3 right-3">
+          <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
             <span class="px-2 py-1 rounded-full text-[10px] font-black uppercase"
               :class="ticket.is_active ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/40'">
               {{ ticket.is_active ? 'Actif' : 'Inactif' }}
+            </span>
+            <span v-if="isEarlyBirdActive(ticket)" class="px-2 py-1 rounded-full text-[10px] font-black uppercase bg-gold/20 text-gold border border-gold/30">
+              🐦 Early Bird
             </span>
           </div>
         </div>
@@ -127,6 +130,34 @@
                 <label class="label-field">Description</label>
                 <textarea v-model="form.description" rows="3" placeholder="Ce billet donne accès à..." class="admin-input resize-none" />
               </div>
+
+              <!-- Early Bird -->
+              <div class="col-span-2">
+                <div class="border border-gold/20 rounded-xl p-4 space-y-3 bg-gold/5">
+                  <p class="text-gold text-xs font-black uppercase tracking-wider">🐦 Early Bird (optionnel)</p>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2 sm:col-span-1">
+                      <label class="label-field">Prix Early Bird (FCFA)</label>
+                      <input v-model.number="form.early_bird_price" type="number" min="0" placeholder="Ex: 80000" class="admin-input" />
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 flex items-end">
+                      <p v-if="form.early_bird_price && form.price" class="text-white/40 text-xs">
+                        Réduction : {{ Math.round((1 - (form.early_bird_price as number) / form.price) * 100) }}%
+                        (-{{ (form.price - (form.early_bird_price as number)).toLocaleString() }} FCFA)
+                      </p>
+                    </div>
+                    <div>
+                      <label class="label-field">Début Early Bird</label>
+                      <input v-model="form.early_bird_starts_at" type="datetime-local" class="admin-input" />
+                    </div>
+                    <div>
+                      <label class="label-field">Fin Early Bird</label>
+                      <input v-model="form.early_bird_ends_at" type="datetime-local" class="admin-input" />
+                    </div>
+                  </div>
+                  <p class="text-white/30 text-[11px]">Laisser vide pour désactiver l'Early Bird sur ce billet.</p>
+                </div>
+              </div>
               <div class="col-span-2">
                 <label class="label-field">Inclus (une ligne par item)</label>
                 <textarea v-model="includesText" rows="3" placeholder="Ateliers de danse&#10;Soirées sociales&#10;Masterclasses" class="admin-input resize-none font-mono text-sm" />
@@ -180,11 +211,20 @@ const toast     = ref<{ msg: string; type: 'success' | 'error' } | null>(null)
 const form = reactive({
   name: '', subtitle: '', category: '', currency: 'FCFA',
   price: 0, stock: 0, description: '', is_active: true,
+  early_bird_price: '' as number | '',
+  early_bird_starts_at: '',
+  early_bird_ends_at: '',
 })
 const includesText = ref('')
 const imageFile    = ref<File | null>(null)
 const imagePreview = ref<string | null>(null)
 const imgInput     = ref<HTMLInputElement | null>(null)
+
+function isEarlyBirdActive(ticket: any): boolean {
+  if (!ticket.early_bird_price || !ticket.early_bird_starts_at || !ticket.early_bird_ends_at) return false
+  const now = Date.now()
+  return now >= new Date(ticket.early_bird_starts_at).getTime() && now <= new Date(ticket.early_bird_ends_at).getTime()
+}
 
 async function load() {
   loading.value = true
@@ -193,7 +233,11 @@ async function load() {
 }
 
 function resetForm() {
-  Object.assign(form, { name: '', subtitle: '', category: '', currency: 'FCFA', price: 0, stock: 0, description: '', is_active: true })
+  Object.assign(form, {
+    name: '', subtitle: '', category: '', currency: 'FCFA',
+    price: 0, stock: 0, description: '', is_active: true,
+    early_bird_price: '', early_bird_starts_at: '', early_bird_ends_at: '',
+  })
   includesText.value = ''
   imageFile.value    = null
   imagePreview.value = null
@@ -210,14 +254,17 @@ function openEdit(ticket: any) {
   resetForm()
   editId.value = ticket.id
   Object.assign(form, {
-    name:        ticket.name ?? '',
-    subtitle:    ticket.subtitle ?? '',
-    category:    ticket.category ?? '',
-    currency:    ticket.currency ?? 'FCFA',
-    price:       ticket.price ?? 0,
-    stock:       ticket.stock ?? 0,
-    description: ticket.description ?? '',
-    is_active:   ticket.is_active ?? true,
+    name:                 ticket.name ?? '',
+    subtitle:             ticket.subtitle ?? '',
+    category:             ticket.category ?? '',
+    currency:             ticket.currency ?? 'FCFA',
+    price:                ticket.price ?? 0,
+    stock:                ticket.stock ?? 0,
+    description:          ticket.description ?? '',
+    is_active:            ticket.is_active ?? true,
+    early_bird_price:     ticket.early_bird_price ?? '',
+    early_bird_starts_at: ticket.early_bird_starts_at ? ticket.early_bird_starts_at.slice(0, 16) : '',
+    early_bird_ends_at:   ticket.early_bird_ends_at   ? ticket.early_bird_ends_at.slice(0, 16)   : '',
   })
   includesText.value = (ticket.includes ?? []).join('\n')
   imagePreview.value = ticket.image_url ?? null
@@ -239,7 +286,11 @@ async function submitTicket() {
   try {
     const fd = new FormData()
     Object.entries(form).forEach(([k, v]) => {
-      fd.append(k, typeof v === 'boolean' ? (v ? '1' : '0') : String(v))
+      // Les champs early bird peuvent être vides — on les envoie comme chaîne vide
+      // pour permettre au backend de les effacer
+      if (typeof v === 'boolean') fd.append(k, v ? '1' : '0')
+      else if (v === '' || v === null || v === undefined) fd.append(k, '')
+      else fd.append(k, String(v))
     })
     const includes = includesText.value.split('\n').map(s => s.trim()).filter(Boolean)
     includes.forEach((item, i) => fd.append(`includes[${i}]`, item))

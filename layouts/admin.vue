@@ -87,18 +87,20 @@ const { logout } = useAdminApi()
 
 const sidebarOpen = ref(false)
 
-const nav = [
-  { to: '/admin',           icon: '⬛', label: 'Dashboard' },
-  { to: '/admin/commandes', icon: '🎫', label: 'Commandes' },
-  { to: '/admin/billets',   icon: '💳', label: 'Billets & Pass' },
-  { to: '/admin/artistes',  icon: '🎭', label: 'Artistes & DJs' },
+const nav: { to: string; icon: string; label: string; badge?: string | number }[] = [
+  { to: '/admin',               icon: '⬛', label: 'Dashboard' },
+  { to: '/admin/commandes',     icon: '🎫', label: 'Commandes' },
+  { to: '/admin/billets',       icon: '💳', label: 'Billets & Pass' },
+  { to: '/admin/promo-codes',   icon: '🏷️', label: 'Codes Promo' },
+  { to: '/admin/artistes',      icon: '🎭', label: 'Artistes & DJs' },
 ]
 
 const titles: Record<string, string> = {
-  '/admin':           'Dashboard',
-  '/admin/commandes': 'Commandes',
-  '/admin/billets':   'Billets & Pass',
-  '/admin/artistes':  'Artistes & DJs',
+  '/admin':               'Dashboard',
+  '/admin/commandes':     'Commandes',
+  '/admin/billets':       'Billets & Pass',
+  '/admin/promo-codes':   'Codes Promo',
+  '/admin/artistes':      'Artistes & DJs',
 }
 
 const pageTitle = computed(() => {

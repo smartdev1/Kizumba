@@ -62,7 +62,10 @@
               <div v-for="item in cartStore.items" :key="item.slug"
                    class="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
                 <div>
-                  <p class="font-bold">{{ item.name }}</p>
+                  <div class="flex items-center gap-2">
+                    <p class="font-bold">{{ item.name }}</p>
+                    <span v-if="item.isEarlyBird" class="bg-gold-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wide">Early Bird</span>
+                  </div>
                   <p class="text-white/40 text-sm">{{ item.price.toLocaleString() }} {{ item.currency }} × {{ item.quantity }}</p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -71,6 +74,48 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Code promo -->
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h2 class="text-lg font-bold uppercase tracking-wider text-gold-400 mb-4" style="font-family:'Bebas Neue',sans-serif;">
+              🏷️ Code promo
+            </h2>
+
+            <!-- Code déjà appliqué -->
+            <div v-if="cartStore.hasPromo" class="flex items-center justify-between bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-3">
+              <div>
+                <span class="text-green-400 font-bold font-mono">{{ cartStore.promoCode }}</span>
+                <span class="text-white/50 text-sm ml-2">
+                  — {{ cartStore.promoData.type === 'percentage' ? `-${cartStore.promoData.value}%` : `-${cartStore.promoData.value.toLocaleString()} FCFA` }}
+                  <template v-if="cartStore.promoData.description"> · {{ cartStore.promoData.description }}</template>
+                </span>
+              </div>
+              <button @click="cartStore.removePromo()" class="text-white/30 hover:text-red-400 transition-colors text-sm ml-4">✕</button>
+            </div>
+
+            <!-- Saisie du code -->
+            <div v-else class="flex gap-2">
+              <input
+                v-model="promoInput"
+                type="text"
+                placeholder="Entrez votre code promo"
+                @keyup.enter="applyPromo"
+                class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-gold-500/50 transition-colors uppercase font-mono tracking-widest"
+              />
+              <button
+                @click="applyPromo"
+                :disabled="cartStore.promoLoading || !promoInput.trim()"
+                class="bg-gold-500 hover:bg-gold-400 text-black font-bold px-5 py-3 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">
+                <span v-if="cartStore.promoLoading" class="animate-spin inline-block w-4 h-4 border-2 border-black/40 border-t-black rounded-full"></span>
+                <span v-else>Appliquer</span>
+              </button>
+            </div>
+
+            <p v-if="cartStore.promoError" class="text-red-400 text-sm mt-2">{{ cartStore.promoError }}</p>
+            <p v-if="cartStore.promoData?.early_bird_skipped?.length" class="text-yellow-400/70 text-xs mt-2">
+              ⚠️ Non applicable aux billets Early Bird : {{ cartStore.promoData.early_bird_skipped.join(', ') }}
+            </p>
           </div>
 
           <!-- Informations client -->
@@ -127,17 +172,34 @@
               Récapitulatif
             </h2>
 
-            <div class="space-y-3 mb-6">
+            <div class="space-y-3 mb-4">
               <div v-for="item in cartStore.items" :key="item.slug" class="flex justify-between text-sm">
-                <span class="text-white/60">{{ item.name }} ×{{ item.quantity }}</span>
+                <span class="text-white/60">
+                  {{ item.name }} ×{{ item.quantity }}
+                  <span v-if="item.isEarlyBird" class="text-gold-500 text-[10px] font-black ml-1 uppercase">Early Bird</span>
+                </span>
                 <span>{{ (item.price * item.quantity).toLocaleString() }} {{ item.currency }}</span>
               </div>
             </div>
 
+            <!-- Ligne sous-total + réduction -->
+            <template v-if="cartStore.hasPromo">
+              <div class="border-t border-white/10 pt-3 space-y-2 mb-4">
+                <div class="flex justify-between text-sm">
+                  <span class="text-white/50">Sous-total</span>
+                  <span>{{ cartStore.subtotal.toLocaleString() }} FCFA</span>
+                </div>
+                <div class="flex justify-between text-sm text-green-400">
+                  <span>Code <span class="font-mono font-bold">{{ cartStore.promoCode }}</span></span>
+                  <span>−{{ cartStore.discountAmount.toLocaleString() }} FCFA</span>
+                </div>
+              </div>
+            </template>
+
             <div class="border-t border-white/10 pt-4 mb-6">
               <div class="flex justify-between items-center">
                 <span class="text-white/60 uppercase text-xs tracking-wider">Total</span>
-                <span class="text-2xl font-black text-gold-400">{{ cartStore.total.toLocaleString() }} FCFA</span>
+                <span class="text-2xl font-black text-gold-400">{{ cartStore.totalAfterDiscount.toLocaleString() }} FCFA</span>
               </div>
             </div>
 
@@ -171,7 +233,6 @@ import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
 const route     = useRoute()
-const router    = useRouter()
 const { initiatePayment, getPaymentStatus } = useApi()
 
 // ─── État ────────────────────────────────────────────
@@ -180,6 +241,14 @@ const globalError   = ref(null)
 const orderSuccess  = ref(false)
 const successTxRef  = ref(null)
 const pendingStatus = ref(false)
+const promoInput    = ref('')
+
+// ─── Code promo ──────────────────────────────────────
+async function applyPromo() {
+  if (!promoInput.value.trim()) return
+  await cartStore.validatePromo(promoInput.value)
+  if (cartStore.hasPromo) promoInput.value = ''
+}
 
 const form = reactive({
   name:  '',
@@ -254,6 +323,7 @@ async function submitPayment() {
         slug:     i.slug,
         quantity: i.quantity,
       })),
+      promo_code: cartStore.promoCode ?? undefined,
     })
 
     // Redirection vers PayDunya

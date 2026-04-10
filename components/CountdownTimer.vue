@@ -19,4 +19,7 @@
 import { useEventStore } from '~/stores/event'
 
 const eventStore = useEventStore()
+
+onMounted(() => eventStore.startCountdown())
+onUnmounted(() => eventStore.stopCountdown())
 </script>
