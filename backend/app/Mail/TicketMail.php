@@ -70,9 +70,9 @@ class TicketMail extends Mailable
                 'issuedTicket'       => $this->issuedTicket,
                 'qrCodeBase64'       => $this->qrCodeBase64,
                 'ticketImageBase64'  => $this->ticketImageBase64,
-                'festivalName'       => 'United Kizdom World Congress',
+                'festivalName'       => 'United Kizdom World Congress 2026',
                 'festivalDates'      => '14 au 19 juillet 2026',
-                'festivalVenue'      => 'Bénin, Afrique',
+                'festivalVenue'      => 'Cotonou (Bénin)',
             ],
         );
     }

@@ -25,16 +25,19 @@ class TicketAdminController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'name'        => 'required|string|max:255',
-            'subtitle'    => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'category'    => 'required|string|max:100',
-            'price'       => 'required|integer|min:0',
-            'currency'    => 'required|string|max:10',
-            'includes'    => 'nullable|array',
-            'stock'       => 'required|integer|min:0',
-            'is_active'   => 'boolean',
-            'image'       => 'nullable|image|max:4096',
+            'name'                 => 'required|string|max:255',
+            'subtitle'             => 'nullable|string|max:255',
+            'description'          => 'nullable|string',
+            'category'             => 'required|string|max:100',
+            'price'                => 'required|integer|min:0',
+            'currency'             => 'required|string|max:10',
+            'includes'             => 'nullable|array',
+            'stock'                => 'required|integer|min:0',
+            'is_active'            => 'boolean',
+            'image'                => 'nullable|image|max:4096',
+            'early_bird_price'     => 'nullable|integer|min:0',
+            'early_bird_starts_at' => 'nullable|date',
+            'early_bird_ends_at'   => 'nullable|date|after_or_equal:early_bird_starts_at',
         ]);
 
         $data['slug'] = Str::slug($data['name']) . '-' . Str::random(5);
@@ -59,17 +62,31 @@ class TicketAdminController extends Controller
         $ticket = Ticket::findOrFail($id);
 
         $data = $request->validate([
-            'name'        => 'sometimes|string|max:255',
-            'subtitle'    => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'category'    => 'sometimes|string|max:100',
-            'price'       => 'sometimes|integer|min:0',
-            'currency'    => 'sometimes|string|max:10',
-            'includes'    => 'nullable|array',
-            'stock'       => 'sometimes|integer|min:0',
-            'is_active'   => 'boolean',
-            'image'       => 'nullable|image|max:4096',
+            'name'                 => 'sometimes|string|max:255',
+            'subtitle'             => 'nullable|string|max:255',
+            'description'          => 'nullable|string',
+            'category'             => 'sometimes|string|max:100',
+            'price'                => 'sometimes|integer|min:0',
+            'currency'             => 'sometimes|string|max:10',
+            'includes'             => 'nullable|array',
+            'stock'                => 'sometimes|integer|min:0',
+            'is_active'            => 'boolean',
+            'image'                => 'nullable|image|max:4096',
+            'early_bird_price'     => 'nullable|integer|min:0',
+            'early_bird_starts_at' => 'nullable|date',
+            'early_bird_ends_at'   => 'nullable|date',
         ]);
+
+        // Permettre d'effacer l'early bird en envoyant des chaînes vides
+        if (array_key_exists('early_bird_price', $data) && $data['early_bird_price'] === '') {
+            $data['early_bird_price'] = null;
+        }
+        if (array_key_exists('early_bird_starts_at', $data) && $data['early_bird_starts_at'] === '') {
+            $data['early_bird_starts_at'] = null;
+        }
+        if (array_key_exists('early_bird_ends_at', $data) && $data['early_bird_ends_at'] === '') {
+            $data['early_bird_ends_at'] = null;
+        }
 
         if (isset($data['stock']) && $data['stock'] < $ticket->sold) {
             return response()->json([

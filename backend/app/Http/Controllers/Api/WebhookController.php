@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Mail\TicketMail;
 use App\Models\Payment;
+use App\Models\PromoCode;
 use App\Services\PayDunyaService;
 use App\Services\TicketService;
 use Illuminate\Http\Request;
@@ -81,6 +82,11 @@ class WebhookController extends Controller
                 'error'  => $e->getMessage(),
             ]);
             return response('ticket issue error', 200);
+        }
+
+        // Incrémenter le compteur d'utilisations du code promo
+        if ($payment->promo_code_id) {
+            PromoCode::where('id', $payment->promo_code_id)->increment('uses_count');
         }
 
         // Envoyer les emails

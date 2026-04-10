@@ -33,18 +33,24 @@ class TicketController extends Controller
 
     private function format(Ticket $ticket): array
     {
+        $isEarlyBird = $ticket->isEarlyBird();
+
         return [
-            'id'              => $ticket->id,
-            'slug'            => $ticket->slug,
-            'name'            => $ticket->name,
-            'description'     => $ticket->description,
-            'category'        => $ticket->category,
-            'price'           => $ticket->price,
-            'currency'        => $ticket->currency,
-            'includes'        => $ticket->includes ?? [],
-            'available_stock' => $ticket->available_stock,
-            'is_available'    => $ticket->isAvailable(),
-            'image_url'       => $ticket->image_path ? asset('storage/' . $ticket->image_path) : null,
+            'id'                    => $ticket->id,
+            'slug'                  => $ticket->slug,
+            'name'                  => $ticket->name,
+            'description'           => $ticket->description,
+            'category'              => $ticket->category,
+            'price'                 => $ticket->price,
+            'effective_price'       => $ticket->effective_price,
+            'currency'              => $ticket->currency,
+            'includes'              => $ticket->includes ?? [],
+            'available_stock'       => $ticket->available_stock,
+            'is_available'          => $ticket->isAvailable(),
+            'image_url'             => $ticket->image_path ? asset('storage/' . $ticket->image_path) : null,
+            'is_early_bird'         => $isEarlyBird,
+            'early_bird_price'      => $ticket->early_bird_price,
+            'early_bird_ends_at'    => $ticket->early_bird_ends_at?->toIso8601String(),
         ];
     }
 }

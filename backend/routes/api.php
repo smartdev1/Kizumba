@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\PromoCodeController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\WebhookController;
 use App\Http\Controllers\Admin\ArtistController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PromoCodeAdminController;
 use App\Http\Controllers\Admin\TicketAdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +34,8 @@ Route::prefix('payments')->group(function () {
     Route::post('/initiate', [PaymentController::class, 'initiate']);
     Route::get('/{txRef}/status', [PaymentController::class, 'status']);
 });
+
+Route::post('/promo-codes/validate', [PromoCodeController::class, 'validate']);
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +79,13 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
 
     // Scanner QR
     Route::get('/validate/{uid}', [OrderController::class, 'validateTicket']);
+
+    // Gestion codes promo
+    Route::get('/promo-codes', [PromoCodeAdminController::class, 'index']);
+    Route::post('/promo-codes', [PromoCodeAdminController::class, 'store']);
+    Route::put('/promo-codes/{id}', [PromoCodeAdminController::class, 'update']);
+    Route::delete('/promo-codes/{id}', [PromoCodeAdminController::class, 'destroy']);
+    Route::patch('/promo-codes/{id}/toggle', [PromoCodeAdminController::class, 'toggle']);
 });
 
 /*

@@ -31,13 +31,16 @@ class TicketService
                     );
                 }
 
+                // Prix final stocké dans le panier (après early bird ou promo code)
+                $pricePaid = (int) ($item['final_price'] ?? $item['unit_price'] ?? $ticket->price);
+
                 for ($i = 0; $i < $quantity; $i++) {
                     $issuedTicket = IssuedTicket::create([
                         'uid'          => $this->generateUid(),
                         'payment_id'   => $payment->id,
                         'ticket_id'    => $ticket->id,
                         'ticket_name'  => $ticket->name,
-                        'price_paid'   => $ticket->price,
+                        'price_paid'   => $pricePaid,
                         'currency'     => $ticket->currency,
                         'holder_name'  => $payment->customer_name,
                         'holder_email' => $payment->customer_email,

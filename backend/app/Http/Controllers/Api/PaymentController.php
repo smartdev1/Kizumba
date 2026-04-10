@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Mail\TicketMail;
 use App\Models\Payment;
+use App\Models\PromoCode;
 use App\Models\Ticket;
 use App\Services\PayDunyaService;
 use App\Services\TicketService;
@@ -35,11 +36,25 @@ class PaymentController extends Controller
             'items'            => 'required|array|min:1',
             'items.*.slug'     => 'required|string',
             'items.*.quantity' => 'required|integer|min:1',
+            'promo_code'       => 'nullable|string|max:50',
         ]);
 
-        // Vérification stock + calcul montant
-        $cartItems   = [];
-        $totalAmount = 0;
+        // ── Résolution du code promo ──────────────────────────────────────────
+        $promo = null;
+        if (!empty($data['promo_code'])) {
+            $promo = PromoCode::where('code', strtoupper(trim($data['promo_code'])))->first();
+
+            if (!$promo || !$promo->isUsable()) {
+                throw ValidationException::withMessages([
+                    'promo_code' => ['Code promo invalide ou expiré.'],
+                ]);
+            }
+        }
+
+        // ── Vérification stock + calcul montant avec réductions ───────────────
+        $cartItems     = [];
+        $totalAmount   = 0;
+        $totalDiscount = 0;
 
         foreach ($data['items'] as $item) {
             $ticket = Ticket::where('slug', $item['slug'])->where('is_active', true)->first();
@@ -56,39 +71,65 @@ class PaymentController extends Controller
                 ]);
             }
 
-            $cartItems[] = [
-                'slug'        => $ticket->slug,
-                'name'        => $ticket->name,
-                'quantity'    => $item['quantity'],
-                'unit_price'  => $ticket->price,
-                'description' => $ticket->description ?? '',
-            ];
+            $isEarlyBird = $ticket->isEarlyBird();
+            $basePrice   = $ticket->effective_price; // early bird ou prix normal
 
-            $totalAmount += $ticket->price * $item['quantity'];
+            // Le code promo ne s'applique pas aux tickets en early bird
+            $discount   = 0;
+            $finalPrice = $basePrice;
+
+            if ($promo && !$isEarlyBird && $promo->appliesToSlug($ticket->slug)) {
+                $discount   = $promo->computeDiscount($basePrice);
+                $finalPrice = $basePrice - $discount;
+            }
+
+            $totalAmount   += $finalPrice * $item['quantity'];
+            $totalDiscount += $discount * $item['quantity'];
+
+            $cartItems[] = [
+                'slug'          => $ticket->slug,
+                'name'          => $ticket->name,
+                'quantity'      => $item['quantity'],
+                'unit_price'    => $basePrice,
+                'discount'      => $discount,
+                'final_price'   => $finalPrice,
+                'is_early_bird' => $isEarlyBird,
+                'description'   => $ticket->description ?? '',
+            ];
         }
 
         $txRef = 'PKC-' . strtoupper(Str::random(12));
 
-        // Enregistrement du paiement en attente
+        // ── Enregistrement du paiement en attente ─────────────────────────────
         $payment = Payment::create([
-            'tx_ref'        => $txRef,
-            'status'        => 'pending',
-            'amount'        => $totalAmount,
-            'currency'      => 'FCFA',
-            'customer_name'  => $data['customer']['name'],
-            'customer_email' => $data['customer']['email'],
-            'customer_phone' => $data['customer']['phone'] ?? null,
-            'cart_items'    => $cartItems,
+            'tx_ref'          => $txRef,
+            'status'          => 'pending',
+            'amount'          => $totalAmount,
+            'currency'        => 'FCFA',
+            'customer_name'   => $data['customer']['name'],
+            'customer_email'  => $data['customer']['email'],
+            'customer_phone'  => $data['customer']['phone'] ?? null,
+            'cart_items'      => $cartItems,
+            'promo_code_id'   => $promo?->id,
+            'discount_amount' => $totalDiscount,
         ]);
 
-        // Création facture PayDunya
+        // ── Création facture PayDunya (prix finaux après réductions) ──────────
+        $paydunyaItems = array_map(fn ($i) => [
+            'slug'        => $i['slug'],
+            'name'        => $i['name'],
+            'quantity'    => $i['quantity'],
+            'unit_price'  => $i['final_price'],
+            'description' => $i['description'],
+        ], $cartItems);
+
         try {
             $result = $this->payDunya->createInvoice([
                 'tx_ref'       => $txRef,
                 'amount'       => $totalAmount,
                 'description'  => 'United Kizdom World Congress — Pass festival',
                 'customer'     => $data['customer'],
-                'items'        => $cartItems,
+                'items'        => $paydunyaItems,
                 'return_url'   => config('paydunya.return_url') . "?tx_ref={$txRef}",
                 'cancel_url'   => config('paydunya.cancel_url'),
                 'callback_url' => config('paydunya.callback_url'),
@@ -96,17 +137,17 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             $payment->update(['status' => 'failed']);
             Log::error('PayDunya initiate error', ['tx_ref' => $txRef, 'error' => $e->getMessage()]);
-
             return response()->json(['message' => 'Erreur lors de la création du paiement'], 500);
         }
 
-        // Sauvegarde du token PayDunya
         $payment->update(['paydunya_token' => $result['token']]);
 
         return response()->json([
-            'payment_url' => $result['payment_url'],
-            'tx_ref'      => $txRef,
-            'token'       => $result['token'],
+            'payment_url'     => $result['payment_url'],
+            'tx_ref'          => $txRef,
+            'token'           => $result['token'],
+            'total_amount'    => $totalAmount,
+            'discount_amount' => $totalDiscount,
         ]);
     }
 
