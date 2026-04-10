@@ -11,16 +11,16 @@ export default {
     extend: {
       colors: {
         gold: {
-          50: '#fefce8',
-          100: '#fef9c3',
-          200: '#fef08a',
-          300: '#fde047',
-          400: '#facc15',
-          500: '#eab308',
-          600: '#ca8a04',
-          700: '#a16207',
-          800: '#854d0e',
-          900: '#713f12',
+          50:  '#fdf8ec',
+          100: '#f9edcc',
+          200: '#f2d98a',
+          300: '#ecc456',
+          400: '#F5D78A', // or clair / hover
+          500: '#C9A84C', // or brand principal UKWC
+          600: '#A88630',
+          700: '#8B6914',
+          800: '#6B4F0D',
+          900: '#4A3708',
         },
         primary: {
           DEFAULT: '#000000',

@@ -63,7 +63,7 @@
     <!-- ═══════════════════════════════════════════════
          NAV SECTIONS PILL
     ══════════════════════════════════════════════════ -->
-    <div class="sticky top-16 z-40 py-3 bg-black/90 backdrop-blur-md border-b border-gold-500/10">
+    <div class="sticky z-40 py-3 bg-black/90 backdrop-blur-md border-b border-gold-500/10" style="top: var(--header-height, 65px)">
       <div class="container mx-auto px-6">
         <div class="flex gap-2 overflow-x-auto scrollbar-none pb-1">
           <a v-for="nav in navSections" :key="nav.id" :href="'#' + nav.id"
@@ -501,6 +501,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+
+useHead({
+  title: 'UKWC 2026 — Programme, Artistes & Soirées · United Kizdom World Congress',
+  meta: [
+    { name: 'description', content: 'Découvrez le programme complet du UKWC 2026 : artistes internationaux, ateliers, soirées sociales, Battle KIZ Qualifier. Festival kizomba à Cotonou, Bénin, 14-19 Juillet 2026.' }
+  ]
+})
 
 const activeDay             = ref(1)
 const carouselRef           = ref(null)

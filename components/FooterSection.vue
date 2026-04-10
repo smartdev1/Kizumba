@@ -53,13 +53,13 @@
           <h4 class="text-xs tracking-[0.25em] uppercase text-[#C9A032]/60 mb-5">Navigation</h4>
           <ul class="space-y-3">
             <li>
-              <a href="#billetterie" class="text-gray-400 hover:text-[#C9A032] transition-colors text-sm">Billetterie</a>
+              <NuxtLink to="/#billetterie" class="text-gray-400 hover:text-[#C9A032] transition-colors text-sm">Billetterie</NuxtLink>
             </li>
             <li>
-              <a href="#professeurs" class="text-gray-400 hover:text-[#C9A032] transition-colors text-sm">Artistes & Profs</a>
+              <NuxtLink to="/#professeurs" class="text-gray-400 hover:text-[#C9A032] transition-colors text-sm">Artistes & Profs</NuxtLink>
             </li>
             <li>
-              <a href="#dj" class="text-gray-400 hover:text-[#C9A032] transition-colors text-sm">DJs</a>
+              <NuxtLink to="/#dj" class="text-gray-400 hover:text-[#C9A032] transition-colors text-sm">DJs</NuxtLink>
             </li>
             <li>
               <NuxtLink to="/about" class="text-gray-400 hover:text-[#C9A032] transition-colors text-sm">À propos</NuxtLink>
@@ -98,7 +98,7 @@
               <svg class="w-4 h-4 mt-0.5 shrink-0 text-[#C9A032]/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
-              19 – 23 Juillet 2026
+              14 – 19 Juillet 2026
             </div>
           </div>
         </div>

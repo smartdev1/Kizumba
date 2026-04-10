@@ -6,5 +6,10 @@ node_modules
 .output
 .data
 .env
+.env.*
+!.env.example
 dist
 .bolt_
+backend/.env
+backend/.env.*
+!backend/.env.example

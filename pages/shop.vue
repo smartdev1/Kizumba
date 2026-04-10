@@ -46,7 +46,7 @@
 
         <!-- Carousel -->
         <template v-else>
-          <div class="relative">
+          <div class="relative px-10">
             <div class="overflow-hidden">
               <div class="flex transition-transform duration-500 ease-out"
                    :style="{ transform: `translateX(-${Math.min(eventPassCurrentIndex * 100, Math.max(0, (eventPasses.length - 3) / 3 * 100))}%)` }">
@@ -71,12 +71,15 @@
                         <span class="text-2xl font-bold text-gold-400">{{ (pass.effective_price ?? pass.price).toLocaleString() }} {{ pass.currency }}</span>
                         <span v-if="pass.is_early_bird" class="text-sm text-white/30 line-through">{{ pass.price.toLocaleString() }}</span>
                       </div>
-                      <div class="text-white/30 text-xs mt-1">{{ pass.available_stock }} place(s) restante(s)</div>
+                      <div class="text-white/50 text-xs mt-1">
+                        {{ pass.available_stock === 1 ? '1 place restante' : `${pass.available_stock} places restantes` }}
+                      </div>
                       <div class="mt-4 space-y-2 flex-1">
                         <div v-for="item in (pass.includes ?? []).slice(0,3)" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
                           <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
                           {{ item }}
                         </div>
+                        <p v-if="(pass.includes ?? []).length > 3" class="text-white/30 text-xs pl-6">+ {{ (pass.includes ?? []).length - 3 }} autres inclusions</p>
                       </div>
                       <button
                         @click="selectTicket(pass)"
@@ -86,22 +89,24 @@
                           ? 'bg-green-500 text-white'
                           : pass.is_available
                             ? 'bg-gold-500 hover:bg-gold-400 text-black'
-                            : 'bg-white/10 text-white/30 cursor-not-allowed'">
-                        {{ addedSlug === pass.slug ? '✓ Ajouté !' : pass.is_available ? 'Sélectionner' : 'Indisponible' }}
+                            : 'bg-white/10 text-white/40 cursor-not-allowed'">
+                        {{ addedSlug === pass.slug ? '✓ Ajouté !' : pass.is_available ? 'Ajouter au panier' : 'Indisponible' }}
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <button @click="prevEventPass" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">◀</button>
-            <button @click="nextEventPass" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">▶</button>
+            <button @click="prevEventPass" aria-label="Précédent" class="absolute left-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">◀</button>
+            <button @click="nextEventPass" aria-label="Suivant" class="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">▶</button>
           </div>
-          <div class="flex justify-center gap-2 mt-8">
+          <div class="flex justify-center gap-3 mt-8">
             <button v-for="(_, idx) in Math.ceil(eventPasses.length / 3)" :key="idx"
                     @click="eventPassCurrentIndex = idx"
-                    class="w-2 h-2 rounded-full transition-all"
-                    :class="eventPassCurrentIndex === idx ? 'w-6 bg-gold-500' : 'bg-white/30'">
+                    :aria-label="`Page ${idx + 1}`"
+                    class="p-2 group">
+              <span class="block h-2 rounded-full transition-all duration-300"
+                    :class="eventPassCurrentIndex === idx ? 'w-6 bg-gold-500' : 'w-2 bg-white/30 group-hover:bg-white/50'"></span>
             </button>
           </div>
         </template>
@@ -131,7 +136,7 @@
 
         <!-- Carousel -->
         <template v-else>
-          <div class="relative">
+          <div class="relative px-10">
             <div class="overflow-hidden">
               <div class="flex transition-transform duration-500 ease-out"
                    :style="{ transform: `translateX(-${Math.min(fullPassStayCurrentIndex * 100, Math.max(0, (fullPassStayTickets.length - 3) / 3 * 100))}%)` }">
@@ -156,33 +161,38 @@
                         <span class="text-2xl font-bold text-gold-400">{{ (ticket.effective_price ?? ticket.price).toLocaleString() }} {{ ticket.currency }}</span>
                         <span v-if="ticket.is_early_bird" class="text-sm text-white/30 line-through">{{ ticket.price.toLocaleString() }}</span>
                       </div>
-                      <div class="text-white/30 text-xs mt-1">{{ ticket.available_stock }} place(s) restante(s)</div>
+                      <div class="text-white/50 text-xs mt-1">
+                        {{ ticket.available_stock === 1 ? '1 place restante' : `${ticket.available_stock} places restantes` }}
+                      </div>
                       <div class="mt-4 space-y-2 flex-1">
                         <div v-for="item in (ticket.includes ?? []).slice(0,3)" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
                           <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
                           {{ item }}
                         </div>
+                        <p v-if="(ticket.includes ?? []).length > 3" class="text-white/30 text-xs pl-6">+ {{ (ticket.includes ?? []).length - 3 }} autres inclusions</p>
                       </div>
                       <button
                         @click="selectTicket(ticket)"
                         :disabled="!ticket.is_available"
                         class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
                         :class="addedSlug === ticket.slug ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
-                        {{ addedSlug === ticket.slug ? '✓ Ajouté !' : 'Choisir' }}
+                        {{ addedSlug === ticket.slug ? '✓ Ajouté !' : 'Ajouter au panier' }}
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <button @click="prevFullPassStay" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">◀</button>
-            <button @click="nextFullPassStay" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">▶</button>
+            <button @click="prevFullPassStay" aria-label="Précédent" class="absolute left-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">◀</button>
+            <button @click="nextFullPassStay" aria-label="Suivant" class="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">▶</button>
           </div>
-          <div class="flex justify-center gap-2 mt-8">
+          <div class="flex justify-center gap-3 mt-8">
             <button v-for="(_, idx) in Math.ceil(fullPassStayTickets.length / 3)" :key="idx"
                     @click="fullPassStayCurrentIndex = idx"
-                    class="w-2 h-2 rounded-full transition-all"
-                    :class="fullPassStayCurrentIndex === idx ? 'w-6 bg-gold-500' : 'bg-white/30'">
+                    :aria-label="`Page ${idx + 1}`"
+                    class="p-2 group">
+              <span class="block h-2 rounded-full transition-all duration-300"
+                    :class="fullPassStayCurrentIndex === idx ? 'w-6 bg-gold-500' : 'w-2 bg-white/30 group-hover:bg-white/50'"></span>
             </button>
           </div>
         </template>
@@ -238,7 +248,9 @@
                   <span class="text-2xl font-bold text-gold-400">{{ (ticket.effective_price ?? ticket.price).toLocaleString() }} {{ ticket.currency }}</span>
                   <span v-if="ticket.is_early_bird" class="text-sm text-white/30 line-through">{{ ticket.price.toLocaleString() }}</span>
                 </div>
-                <div class="text-white/30 text-xs mt-1">{{ ticket.available_stock }} place(s) restante(s)</div>
+                <div class="text-white/50 text-xs mt-1">
+                  {{ ticket.available_stock === 1 ? '1 place restante' : `${ticket.available_stock} places restantes` }}
+                </div>
                 <div class="mt-4 space-y-2">
                   <div v-for="item in (ticket.includes ?? [])" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
                     <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
@@ -250,13 +262,13 @@
                   :disabled="!ticket.is_available"
                   class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
                   :class="addedSlug === ticket.slug ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
-                  {{ addedSlug === ticket.slug ? '✓ Ajouté !' : 'Sélectionner' }}
+                  {{ addedSlug === ticket.slug ? '✓ Ajouté !' : 'Ajouter au panier' }}
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <p class="text-center text-white/30 text-sm mt-8">⚠️ Réservation avant le 15 juin · 2 personnes max</p>
+        <p class="text-center text-white/50 text-sm mt-8">⚠️ Réservation avant le 15 juin · 2 personnes max</p>
       </div>
     </section>
 
@@ -272,9 +284,42 @@
           class="bg-gold-500 hover:bg-gold-400 text-black font-extrabold uppercase tracking-widest px-12 py-5 rounded-full transition-all shadow-xl shadow-gold-500/30 hover:-translate-y-1 disabled:opacity-40 disabled:cursor-not-allowed">
           {{ cartStore.isEmpty ? 'Sélectionnez un billet' : `Commander (${cartStore.itemCount} billet${cartStore.itemCount > 1 ? 's' : ''})` }}
         </button>
-        <p class="text-white/20 text-xs mt-6">Powered by Matsuri Corp</p>
       </div>
     </section>
+
+    <!-- Mini-panier sticky -->
+    <Transition name="slide-up">
+      <div
+        v-if="!cartStore.isEmpty"
+        class="fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-t border-[#C9A84C]/30 px-4 py-3 md:py-4"
+      >
+        <div class="container mx-auto max-w-4xl flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-full bg-[#C9A84C]/20 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-[#C9A84C]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <p class="text-white font-bold text-sm">
+                {{ cartStore.itemCount }} billet{{ cartStore.itemCount > 1 ? 's' : '' }} sélectionné{{ cartStore.itemCount > 1 ? 's' : '' }}
+              </p>
+              <p class="text-[#C9A84C] text-xs font-bold">{{ cartStore.subtotal.toLocaleString() }} FCFA</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              @click="cartStore.clearCart()"
+              class="text-white/40 hover:text-red-400 transition-colors text-xs px-3 py-2 rounded-lg hover:bg-white/5"
+            >Vider</button>
+            <button
+              @click="goToCheckout"
+              class="bg-[#C9A84C] hover:bg-[#F5D78A] text-black font-extrabold uppercase tracking-wider text-sm px-6 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 shadow-lg shadow-[#C9A84C]/30"
+            >Commander →</button>
+          </div>
+        </div>
+      </div>
+    </Transition>
 
   </div>
 </template>
@@ -282,6 +327,13 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useCartStore } from '~/stores/cart'
+
+useHead({
+  title: 'Billetterie — UKWC 2026 · United Kizdom World Congress',
+  meta: [
+    { name: 'description', content: 'Achetez vos billets pour le United Kizdom World Congress 2026. Event Pass, Full Pass & Stay, options personnalisées. Festival kizomba à Cotonou, Bénin, 14-19 Juillet 2026.' }
+  ]
+})
 
 const { getTickets } = useApi()
 const cartStore = useCartStore()
@@ -397,5 +449,16 @@ function goToCheckout() {
   color: rgba(255,255,255,0.3);
   font-size: 0.85rem;
   text-align: center;
+}
+
+/* Mini-panier sticky animation */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
 }
 </style>

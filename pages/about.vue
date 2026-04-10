@@ -270,6 +270,13 @@
 </template>
 
 <script setup>
+useHead({
+  title: 'À propos — UKWC 2026 · United Kizdom World Congress',
+  meta: [
+    { name: 'description', content: 'Découvrez l\'histoire et la mission du United Kizdom World Congress, le plus grand festival de kizomba d\'Afrique de l\'Ouest à Cotonou, Bénin.' }
+  ]
+})
+
 const stats = [
   { value: '250+', label: 'Participants' },
   { value: '20+', label: 'Artistes internationaux' },

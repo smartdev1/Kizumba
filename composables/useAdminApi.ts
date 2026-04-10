@@ -34,8 +34,13 @@ export function useAdminApi() {
   }
 
   async function logout() {
-    await api('/admin/logout', { method: 'POST' })
-    token.value = null
+    try {
+      await api('/admin/logout', { method: 'POST' })
+    } catch {
+      // Ignorer les erreurs (token déjà expiré) — on efface le cookie dans tous les cas
+    } finally {
+      token.value = null
+    }
   }
 
   // ── Dashboard ─────────────────────────────────────────

@@ -47,9 +47,10 @@ export const useApi = () => {
 
   /**
    * Vérifie le statut d'un paiement après retour PayDunya.
+   * L'email est requis pour prévenir l'énumération des commandes (IDOR).
    */
-  const getPaymentStatus = (txRef: string) =>
-    get<PaymentStatus>(`/payments/${txRef}/status`)
+  const getPaymentStatus = (txRef: string, email: string) =>
+    post<PaymentStatus>(`/payments/${txRef}/status`, { email })
 
   return {
     getArtists,
@@ -111,8 +112,6 @@ export interface PaymentStatus {
   status: 'pending' | 'completed' | 'failed' | 'cancelled'
   amount: number
   currency: string
-  customer_name: string
-  customer_email: string
   issued_tickets: Array<{
     uid: string
     ticket_name: string

@@ -28,7 +28,8 @@
           <!-- Mobile : cover aligné à gauche, remplit toute la zone -->
           <img
             :src="slide.image"
-            :alt="slide.name"
+            :alt="slide.name ?? ''"
+            :loading="index === 0 ? 'eager' : 'lazy'"
             class="
               w-full h-full
               object-cover object-left
@@ -43,7 +44,7 @@
       <!-- ── Zone CTA ───────────────────────────────────── -->
       <div class="
         flex-shrink-0
-        flex flex-col items-center justify-center gap-2
+        flex flex-col items-center justify-center gap-6
         px-5 pb-10 pt-3
         h-[26svh]
         md:h-auto md:w-[300px] md:items-end md:justify-center
@@ -51,7 +52,7 @@
       ">
         <!-- Label artiste -->
         <p class="text-[9px] md:text-[11px] tracking-[0.2em] uppercase text-[#C9A032]/60 text-center md:text-right">
-          {{ slides[current].name }}
+          {{ slides[current]?.name }}
         </p>
 
         <!-- Boutons côte à côte sur mobile, empilés sur desktop -->
@@ -105,7 +106,21 @@
       </span>
     </div>
 
-    <!-- Zones tap mobile gauche/droite (sur la zone image uniquement) -->
+    <!-- Zones tap mobile gauche/droite avec chevrons indicateurs -->
+    <div class="absolute top-0 left-0 w-1/2 z-20 md:hidden flex items-center justify-start pl-3 pointer-events-none" style="height: 74svh;">
+      <div class="w-8 h-8 rounded-full bg-black/30 border border-[#C9A032]/30 flex items-center justify-center text-[#C9A032]/50 pointer-events-none">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="absolute top-0 right-0 w-1/2 z-20 md:hidden flex items-center justify-end pr-3 pointer-events-none" style="height: 74svh;">
+      <div class="w-8 h-8 rounded-full bg-black/30 border border-[#C9A032]/30 flex items-center justify-center text-[#C9A032]/50 pointer-events-none">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+    </div>
     <div class="absolute top-0 left-0 w-1/2 z-20 md:hidden" style="height: 74svh;" @click="prev" />
     <div class="absolute top-0 right-0 w-1/2 z-20 md:hidden" style="height: 74svh;" @click="next" />
 
