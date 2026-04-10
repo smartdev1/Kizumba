@@ -19,7 +19,7 @@
         <!-- Image ou placeholder -->
         <div class="h-40 relative overflow-hidden bg-gradient-to-br from-[#1a1200] to-[#0a0800]">
           <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name"
-            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
+            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 object-[17%]" />
           <div v-else class="absolute inset-0 flex items-center justify-center text-4xl opacity-20">🎫</div>
           <!-- Badge catégorie -->
           <div class="absolute top-3 left-3">
