@@ -406,7 +406,7 @@ onMounted(async () => {
 })
 
 // ─── Validation URL PayDunya avant redirection ───────
-const PAYDUNYA_ALLOWED_HOSTS = ['app.paydunya.com']
+const PAYDUNYA_ALLOWED_HOSTS = ['app.paydunya.com', 'paydunya.com']
 
 function safeRedirectToPayment(url) {
   try {

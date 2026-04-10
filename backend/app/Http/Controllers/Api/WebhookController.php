@@ -36,8 +36,8 @@ class WebhookController extends Controller
             return response('forbidden', 403);
         }
 
-        // PayDunya envoie le token via query string ou body
-        $token = $request->query('data') ?? $request->input('data');
+        // PayDunya envoie le token dans data.token (corps JSON) ou via query string
+        $token = $request->input('data.token') ?? $request->query('data');
 
         if (!$token) {
             Log::warning('PayDunya webhook: token manquant');
