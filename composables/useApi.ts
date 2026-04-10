@@ -11,8 +11,13 @@ export const useApi = () => {
   const get = <T = unknown>(path: string, query?: Record<string, string>) =>
     $fetch<T>(`${baseUrl}${path}`, { params: query })
 
-  const post = <T = unknown>(path: string, body: unknown) =>
-    $fetch<T>(`${baseUrl}${path}`, { method: 'POST', body })
+  const post = <T = unknown>(path: string, body: object) =>
+    $fetch<T>(`${baseUrl}${path}`, { method: 'POST', body: body as Record<string, unknown> })
+
+  // ─── Artistes ───────────────────────────────────────────────────────────────
+
+  const getArtists = () =>
+    get<{ data: ApiArtist[] }>('/artists').then((r) => r.data)
 
   // ─── Tickets ────────────────────────────────────────────────────────────────
 
@@ -47,6 +52,7 @@ export const useApi = () => {
     get<PaymentStatus>(`/payments/${txRef}/status`)
 
   return {
+    getArtists,
     getTickets,
     getTicket,
     initiatePayment,
@@ -55,6 +61,18 @@ export const useApi = () => {
 }
 
 // ─── Types ──────────────────────────────────────────────────────────────────
+
+export interface ApiArtist {
+  id: number
+  name: string
+  category: string
+  specialty: string | null
+  country: string | null
+  country_flag: string | null
+  image_url: string | null
+  is_active: boolean
+  display_order: number
+}
 
 export interface ApiTicket {
   id: number

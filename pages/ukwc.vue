@@ -499,28 +499,16 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
-import imgAurea      from '~/assets/images/AUREA & TRESOR .png'
-import imgOmowise    from '~/assets/images/OMOWISE & TENI.png'
-import imgQuinn      from '~/assets/images/QUINN WANG.png'
-import imgLedoux     from '~/assets/images/LEDOUX KINGSMAN.png'
-import imgYasuke     from '~/assets/images/YASUKE & KALINKA.png'
-import imgGazl       from '~/assets/images/GAZL & COLIBRI.png'
-import imgSaid       from '~/assets/images/SAID D STREET.png'
-import imgSean       from '~/assets/images/SEAN.png'
-import imgFofoJah    from '~/assets/images/DJ FOFO JAH.png'
-import imgGobedson   from '~/assets/images/DJ GOBEDSON.png'
-import imgMilkshake  from '~/assets/images/DJ MILKSHAKE.png'
-import imgThemoz     from '~/assets/images/DJ THEMOZ.png'
 
 const activeDay             = ref(1)
 const carouselRef           = ref(null)
 const activeArtistCategory  = ref('professeurs')
 
-function scrollArtists(direction) {
+function scrollArtists(direction: number) {
   if (!carouselRef.value) return
-  carouselRef.value.scrollBy({ left: direction * 960, behavior: 'smooth' })
+  ;(carouselRef.value as HTMLElement).scrollBy({ left: direction * 960, behavior: 'smooth' })
 }
 
 const navSections = [
@@ -532,26 +520,33 @@ const navSections = [
   { id: 'livret',     label: '📖 Livret d\'accueil' },
 ]
 
-const professeurs = [
-  { name: 'Aurea & Tresor',   specialty: 'Kizomba',     country: '🇵🇹 Portugal',  image: imgAurea   },
-  { name: 'Omowise & Teni',   specialty: 'Urban Kiz',   country: '🇦🇴 Angola',    image: imgOmowise },
-  { name: 'Quinn Wang',       specialty: 'Kizomba',     country: '🇫🇷 France',    image: imgQuinn   },
-  { name: 'Ledoux Kingsman',  specialty: 'Afro Fusion', country: '🇧🇯 Bénin',     image: imgLedoux  },
-  { name: 'Yasuke & Kalinka', specialty: 'Semba',       country: '🇧🇪 Belgique',  image: imgYasuke  },
-  { name: 'Gazl & Colibri',   specialty: 'Urban Kiz',   country: '🇫🇷 France',    image: imgGazl    },
-  { name: 'Said D Street',    specialty: 'Kizomba',     country: '🇨🇻 Cap-Vert',  image: imgSaid    },
-  { name: 'Sean',             specialty: 'Afro Urban',  country: '🇬🇧 UK',         image: imgSean    },
-]
+const { getArtists } = useApi()
+const { data: artistsData } = await useAsyncData('ukwc-artists', () => getArtists())
 
-const djs = [
-  { name: 'DJ Fofo Jah',  specialty: 'DJ Set', country: '🇧🇯 Bénin',    image: imgFofoJah   },
-  { name: 'DJ Gobedson',  specialty: 'DJ Set', country: '🇦🇴 Angola',    image: imgGobedson  },
-  { name: 'DJ Milkshake', specialty: 'DJ Set', country: '🇨🇻 Cap-Vert',  image: imgMilkshake },
-  { name: 'DJ Themoz',    specialty: 'DJ Set', country: '🌍 Afrique',    image: imgThemoz    },
-]
+const professeurs = computed(() =>
+  (artistsData.value ?? [])
+    .filter((a) => a.category !== 'dj')
+    .map((a) => ({
+      name:      a.name,
+      specialty: a.specialty ?? '',
+      country:   [a.country_flag, a.country].filter(Boolean).join(' '),
+      image:     a.image_url ?? '',
+    }))
+)
+
+const djs = computed(() =>
+  (artistsData.value ?? [])
+    .filter((a) => a.category === 'dj')
+    .map((a) => ({
+      name:      a.name,
+      specialty: a.specialty ?? 'DJ Set',
+      country:   [a.country_flag, a.country].filter(Boolean).join(' '),
+      image:     a.image_url ?? '',
+    }))
+)
 
 const currentArtists = computed(() =>
-  activeArtistCategory.value === 'djs' ? djs : professeurs
+  activeArtistCategory.value === 'djs' ? djs.value : professeurs.value
 )
 
 const programme = [

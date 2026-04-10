@@ -44,6 +44,7 @@ class TicketController extends Controller
             'includes'        => $ticket->includes ?? [],
             'available_stock' => $ticket->available_stock,
             'is_available'    => $ticket->isAvailable(),
+            'image_url'       => $ticket->image_path ? asset('storage/' . $ticket->image_path) : null,
         ];
     }
 }

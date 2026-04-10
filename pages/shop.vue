@@ -48,8 +48,8 @@
                 <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
                      :class="{ 'opacity-50': !pass.is_available }">
                   <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
-                    <img src="../images/Event-pass.jpeg" :alt="pass.name" class="w-full h-full object-cover" @error="e => e.target.style.display = 'none'"/>
-                    <span class="text-6xl text-gold-400 absolute">🎟️</span>
+                    <img v-if="pass.image_url" :src="pass.image_url" :alt="pass.name" class="w-full h-full object-cover" />
+                    <span v-else class="text-6xl text-gold-400 absolute">🎟️</span>
                     <div class="absolute top-3 right-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs">PASS</div>
                     <div v-if="!pass.is_available" class="absolute inset-0 bg-black/60 flex items-center justify-center">
                       <span class="text-red-400 font-bold uppercase text-sm">Épuisé</span>
@@ -111,32 +111,39 @@
           <div class="overflow-hidden">
             <div class="flex transition-transform duration-500 ease-out"
                  :style="{ transform: `translateX(-${fullPassStayCurrentIndex * 33.333}%)` }">
-              <div v-for="option in fullPassStayOptions" :key="option.name"
+              <div v-if="ticketsLoading" class="w-full flex-shrink-0 px-3 text-center py-20 text-white/40">
+                Chargement...
+              </div>
+              <div v-for="ticket in fullPassStayTickets" :key="ticket.slug"
                    class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
-                <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
+                <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
+                     :class="{ 'opacity-50': !ticket.is_available }">
                   <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
-                    <img :src="`/images/Full-Pass-&-Stay.jpeg`" class="w-full h-full object-cover" @error="e => e.target.style.display = 'none'"/>
-                    <span class="text-6xl text-gold-400 absolute">🏨</span>
-                    <div class="absolute top-3 left-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs uppercase">{{ option.type }}</div>
+                    <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name" class="w-full h-full object-cover" />
+                    <span v-else class="text-6xl text-gold-400 absolute">🏨</span>
+                    <div class="absolute top-3 right-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs">PASS</div>
+                    <div v-if="!ticket.is_available" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <span class="text-red-400 font-bold uppercase text-sm">Épuisé</span>
+                    </div>
                   </div>
                   <div class="p-5 flex-1 flex flex-col">
-                    <h3 class="font-black text-xl uppercase">{{ option.name }}</h3>
+                    <h3 class="font-black text-xl uppercase">{{ ticket.name }}</h3>
                     <div class="mt-2">
-                      <span class="text-2xl font-bold text-gold-400">{{ option.priceXOF.toLocaleString() }} XOF</span>
-                      <span class="text-white/40 text-sm ml-2">({{ option.priceEUR }} €)</span>
+                      <span class="text-2xl font-bold text-gold-400">{{ ticket.price.toLocaleString() }} {{ ticket.currency }}</span>
                     </div>
-                    <div class="text-white/30 text-xs">{{ option.maxPersons }} personnes max</div>
+                    <div class="text-white/30 text-xs mt-1">{{ ticket.available_stock }} place(s) restante(s)</div>
                     <div class="mt-4 space-y-2 flex-1">
-                      <div v-for="feature in option.features.slice(0,3)" :key="feature" class="flex items-center gap-2 text-white/60 text-sm">
+                      <div v-for="item in (ticket.includes ?? []).slice(0,3)" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
                         <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
-                        {{ feature }}
+                        {{ item }}
                       </div>
                     </div>
                     <button
-                      @click="selectFullPassStay(option)"
-                      class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300"
-                      :class="addedSlug === 'fps-' + option.name ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
-                      {{ addedSlug === 'fps-' + option.name ? '✓ Ajouté !' : 'Choisir' }}
+                      @click="selectTicket(ticket)"
+                      :disabled="!ticket.is_available"
+                      class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                      :class="addedSlug === ticket.slug ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
+                      {{ addedSlug === ticket.slug ? '✓ Ajouté !' : 'Choisir' }}
                     </button>
                   </div>
                 </div>
@@ -147,7 +154,7 @@
           <button @click="nextFullPassStay" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-black/80 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center z-10">▶</button>
         </div>
         <div class="flex justify-center gap-2 mt-8">
-          <button v-for="(_, idx) in Math.ceil(fullPassStayOptions.length / 3)" :key="idx"
+          <button v-for="(_, idx) in Math.ceil(fullPassStayTickets.length / 3)" :key="idx"
                   @click="fullPassStayCurrentIndex = idx"
                   class="w-2 h-2 rounded-full transition-all"
                   :class="fullPassStayCurrentIndex === idx ? 'w-6 bg-gold-500' : 'bg-white/30'">
@@ -174,31 +181,36 @@
           </p>
         </div>
 
-        <div class="flex flex-col md:flex-row justify-center gap-8 max-w-4xl mx-auto">
-          <div v-for="option in shapeExperienceOptions" :key="option.name" class="flex-1">
-            <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1">
+        <div v-if="ticketsLoading" class="text-center py-16 text-white/40">Chargement...</div>
+        <div v-else class="flex flex-col md:flex-row justify-center gap-8 max-w-4xl mx-auto">
+          <div v-for="ticket in shapeExperienceTickets" :key="ticket.slug" class="flex-1">
+            <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1"
+                 :class="{ 'opacity-50': !ticket.is_available }">
               <div class="h-40 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
-                <img :src="`/images/Shape-your-experience.jpeg`" class="w-full h-full object-cover" @error="e => e.target.style.display = 'none'"/>
-                <span class="text-5xl text-gold-400 absolute">🏝️</span>
+                <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name" class="w-full h-full object-cover" />
+                <span v-else class="text-5xl text-gold-400 absolute">🏝️</span>
+                <div v-if="!ticket.is_available" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                  <span class="text-red-400 font-bold uppercase text-sm">Épuisé</span>
+                </div>
               </div>
               <div class="p-5">
-                <h3 class="font-black text-xl uppercase">{{ option.name }}</h3>
+                <h3 class="font-black text-xl uppercase">{{ ticket.name }}</h3>
                 <div class="mt-2">
-                  <span class="text-2xl font-bold text-gold-400">{{ option.pricePerDayXOF.toLocaleString() }} XOF</span>
-                  <span class="text-white/40 text-sm">/ jour ({{ option.pricePerDayEUR }} €)</span>
+                  <span class="text-2xl font-bold text-gold-400">{{ ticket.price.toLocaleString() }} {{ ticket.currency }}</span>
                 </div>
-                <div class="text-white/30 text-xs">{{ option.maxPersons }} personnes max</div>
+                <div class="text-white/30 text-xs mt-1">{{ ticket.available_stock }} place(s) restante(s)</div>
                 <div class="mt-4 space-y-2">
-                  <div v-for="feature in option.features" :key="feature" class="flex items-center gap-2 text-white/60 text-sm">
+                  <div v-for="item in (ticket.includes ?? [])" :key="item" class="flex items-center gap-2 text-white/60 text-sm">
                     <span class="w-4 h-4 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 text-xs">✓</span>
-                    {{ feature }}
+                    {{ item }}
                   </div>
                 </div>
                 <button
-                  @click="selectShapeExperience(option)"
-                  class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300"
-                  :class="addedSlug === 'sye-' + option.name ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
-                  {{ addedSlug === 'sye-' + option.name ? '✓ Ajouté !' : 'Personnaliser' }}
+                  @click="selectTicket(ticket)"
+                  :disabled="!ticket.is_available"
+                  class="mt-5 w-full py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                  :class="addedSlug === ticket.slug ? 'bg-green-500 text-white' : 'bg-gold-500 hover:bg-gold-400 text-black'">
+                  {{ addedSlug === ticket.slug ? '✓ Ajouté !' : 'Sélectionner' }}
                 </button>
               </div>
             </div>
@@ -240,10 +252,24 @@ const { data: ticketsData, pending: ticketsLoading } = useAsyncData(
   () => getTickets(),
 )
 
+const SECTION_CATEGORIES = {
+  fullPassStay:      'Full Pass & Stay',
+  shapeExperience:   'Shape Your Experience',
+}
+
 const eventPasses = computed(() =>
   (ticketsData.value ?? []).filter((t) =>
-    ['Full Pass', 'Parties & Classes', 'Parties Only', 'Tourism', 'Classes Only'].includes(t.category)
+    t.category !== SECTION_CATEGORIES.fullPassStay &&
+    t.category !== SECTION_CATEGORIES.shapeExperience
   )
+)
+
+const fullPassStayTickets = computed(() =>
+  (ticketsData.value ?? []).filter((t) => t.category === SECTION_CATEGORIES.fullPassStay)
+)
+
+const shapeExperienceTickets = computed(() =>
+  (ticketsData.value ?? []).filter((t) => t.category === SECTION_CATEGORIES.shapeExperience)
 )
 
 const eventPassCurrentIndex = ref(0)
@@ -253,25 +279,12 @@ const nextEventPass = () => {
     eventPassCurrentIndex.value++
 }
 
-const fullPassStayOptions = ref([
-  { name: 'Single Standard', type: 'single', priceXOF: 355000, priceEUR: 541, features: ['1 Full pass', '1 appt chambre + salon standard', '1 petit dej / jour'], maxPersons: 2 },
-  { name: 'Single Premium', type: 'single', priceXOF: 390000, priceEUR: 594, features: ['1 Full pass', '1 appt chambre + salon premium', '1 petit dej / jour', "Pack d'accueil", '1 t-shirt'], maxPersons: 2 },
-  { name: 'Single Luxury', type: 'single', priceXOF: 415000, priceEUR: 632, features: ['1 Full pass', '1 appt chambre + salon luxe', '1 petit dej / jour', "Pack d'accueil", '1 t-shirt', 'Assistance'], maxPersons: 2 },
-  { name: 'Double Standard', type: 'couple', priceXOF: 515000, priceEUR: 785, features: ['2 Full pass', '1 appt chambre + salon standard', '2 petit dej / jour'], maxPersons: 2 },
-  { name: 'Double Premium', type: 'couple', priceXOF: 610000, priceEUR: 929, features: ['2 Full pass', 'Appartement 2 chambres + salon premium', '2 petit dej / jour', "Pack d'accueil", '2 t-shirts'], maxPersons: 4 },
-  { name: 'Double Luxury', type: 'couple', priceXOF: 655000, priceEUR: 998, features: ['2 Full pass', 'Appartement 2 chambres + salon luxe', '2 petit dej / jour', "Pack d'accueil", '2 t-shirts', 'Assistance'], maxPersons: 4 }
-])
 const fullPassStayCurrentIndex = ref(0)
 const prevFullPassStay = () => { if (fullPassStayCurrentIndex.value > 0) fullPassStayCurrentIndex.value-- }
 const nextFullPassStay = () => {
-  if (fullPassStayCurrentIndex.value < Math.ceil(fullPassStayOptions.value.length / 3) - 1)
+  if (fullPassStayCurrentIndex.value < Math.ceil(fullPassStayTickets.value.length / 3) - 1)
     fullPassStayCurrentIndex.value++
 }
-
-const shapeExperienceOptions = ref([
-  { name: 'Standard', pricePerDayXOF: 30000, pricePerDayEUR: 46, features: ["1 chambre d'hôtel standard", '1 petit déjeuner / jour', 'Assistance standard'], maxPersons: 2 },
-  { name: 'Premium', pricePerDayXOF: 35000, pricePerDayEUR: 53, features: ["1 chambre d'hôtel premium", '1 petit déjeuner / jour', 'Assistance standard'], maxPersons: 2 }
-])
 
 const addedSlug = ref(null)
 
@@ -282,34 +295,6 @@ function selectTicket(ticket) {
   setTimeout(() => { addedSlug.value = null }, 1500)
 }
 
-function selectFullPassStay(option) {
-  // slug = fps-{single|double}-{standard|premium|luxury}
-  const prefix = option.name.startsWith('Double') ? 'double' : 'single'
-  const level  = option.name.split(' ')[1].toLowerCase()
-  const slug   = 'fps-' + prefix + '-' + level
-  cartStore.addItem({
-    slug,
-    name: 'Full Pass & Stay — ' + option.name,
-    price: option.priceXOF,
-    currency: 'XOF',
-    is_available: true,
-  }, 1)
-  addedSlug.value = 'fps-' + option.name
-  setTimeout(() => { addedSlug.value = null }, 1500)
-}
-
-function selectShapeExperience(option) {
-  const slug = 'sye-' + option.name.toLowerCase()
-  cartStore.addItem({
-    slug,
-    name: 'Shape Your Experience — ' + option.name,
-    price: option.pricePerDayXOF,
-    currency: 'XOF',
-    is_available: true,
-  }, 1)
-  addedSlug.value = 'sye-' + option.name
-  setTimeout(() => { addedSlug.value = null }, 1500)
-}
 
 function goToCheckout() {
   router.push('/checkout')

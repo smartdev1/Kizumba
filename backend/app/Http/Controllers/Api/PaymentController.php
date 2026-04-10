@@ -3,18 +3,24 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TicketMail;
 use App\Models\Payment;
 use App\Models\Ticket;
 use App\Services\PayDunyaService;
+use App\Services\TicketService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class PaymentController extends Controller
 {
-    public function __construct(private PayDunyaService $payDunya) {}
+    public function __construct(
+        private PayDunyaService $payDunya,
+        private TicketService $ticketService,
+    ) {}
 
     /**
      * POST /api/payments/initiate
@@ -107,12 +113,19 @@ class PaymentController extends Controller
     /**
      * GET /api/payments/{tx_ref}/status
      * Retourne le statut d'un paiement (utilisé par le frontend après retour).
+     * Fallback actif : si le paiement est encore pending, on vérifie directement
+     * chez PayDunya — utile quand le webhook IPN n'a pas été reçu (ngrok expiré, etc.).
      */
     public function status(string $txRef): JsonResponse
     {
         $payment = Payment::where('tx_ref', $txRef)
             ->with('issuedTickets')
             ->firstOrFail();
+
+        if ($payment->status === 'pending' && $payment->paydunya_token) {
+            $this->tryFallbackConfirmation($payment);
+            $payment->refresh()->load('issuedTickets');
+        }
 
         return response()->json([
             'status'         => $payment->status,
@@ -127,6 +140,65 @@ class PaymentController extends Controller
                     'status'      => $t->status,
                 ])
                 : [],
+        ]);
+    }
+
+    /**
+     * Vérifie le statut PayDunya et traite le paiement si complété.
+     * Idempotent : ne re-émet pas de tickets si déjà émis.
+     */
+    private function tryFallbackConfirmation(Payment $payment): void
+    {
+        try {
+            $verification = $this->payDunya->verifyInvoice($payment->paydunya_token);
+        } catch (\Exception $e) {
+            Log::warning('PaymentController fallback: vérification échouée', [
+                'tx_ref' => $payment->tx_ref,
+                'error'  => $e->getMessage(),
+            ]);
+            return;
+        }
+
+        if (!$verification['completed']) {
+            return;
+        }
+
+        // Idempotence : ne pas retraiter si déjà complété entre-temps
+        if ($payment->isCompleted()) {
+            return;
+        }
+
+        $payment->update([
+            'status'            => 'completed',
+            'paid_at'           => now(),
+            'paydunya_response' => $verification['raw'],
+        ]);
+
+        try {
+            $issuedTickets = $this->ticketService->issueTicketsForPayment($payment);
+        } catch (\Exception $e) {
+            Log::error('PaymentController fallback: émission tickets échouée', [
+                'tx_ref' => $payment->tx_ref,
+                'error'  => $e->getMessage(),
+            ]);
+            return;
+        }
+
+        foreach ($issuedTickets as $issuedTicket) {
+            try {
+                Mail::to($payment->customer_email)->send(new TicketMail($issuedTicket));
+                $issuedTicket->update(['email_sent' => true]);
+            } catch (\Exception $e) {
+                Log::error('PaymentController fallback: envoi email échoué', [
+                    'uid'   => $issuedTicket->uid,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        Log::info('PaymentController fallback: paiement traité avec succès', [
+            'tx_ref'          => $payment->tx_ref,
+            'tickets_emitted' => count($issuedTickets),
         ]);
     }
 }

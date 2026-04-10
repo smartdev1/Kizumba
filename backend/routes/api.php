@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\WebhookController;
+use App\Http\Controllers\Admin\ArtistController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\TicketAdminController;
@@ -16,6 +17,15 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('tickets')->group(function () {
     Route::get('/', [TicketController::class, 'index']);
     Route::get('/{slug}', [TicketController::class, 'show']);
+});
+
+Route::get('/artists', function () {
+    return response()->json([
+        'data' => \App\Models\Artist::where('is_active', true)
+            ->orderBy('display_order')
+            ->orderBy('name')
+            ->get(),
+    ]);
 });
 
 Route::prefix('payments')->group(function () {
@@ -43,6 +53,20 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     Route::get('/tickets', [TicketAdminController::class, 'index']);
     Route::put('/tickets/{id}/stock', [TicketAdminController::class, 'updateStock']);
     Route::patch('/tickets/{id}/toggle', [TicketAdminController::class, 'toggle']);
+
+    // Gestion tickets (CRUD complet)
+    Route::post('/tickets', [TicketAdminController::class, 'store']);
+    Route::put('/tickets/{id}', [TicketAdminController::class, 'update']);
+    Route::post('/tickets/{id}', [TicketAdminController::class, 'update']); // multipart spoofing (_method=PUT)
+    Route::delete('/tickets/{id}', [TicketAdminController::class, 'destroy']);
+
+    // Gestion artistes
+    Route::get('/artists', [ArtistController::class, 'index']);
+    Route::post('/artists', [ArtistController::class, 'store']);
+    Route::put('/artists/{id}', [ArtistController::class, 'update']);
+    Route::post('/artists/{id}', [ArtistController::class, 'update']); // multipart spoofing (_method=PUT)
+    Route::delete('/artists/{id}', [ArtistController::class, 'destroy']);
+    Route::patch('/artists/{id}/toggle', [ArtistController::class, 'toggle']);
 
     // Gestion commandes
     Route::get('/orders', [OrderController::class, 'index']);

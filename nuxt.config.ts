@@ -11,8 +11,10 @@ export default defineNuxtConfig({
 
   // ── Runtime Config ──────────────────────────────────────────────────────────
   runtimeConfig: {
+    // Côté serveur uniquement (non exposé au navigateur)
+    apiBackendUrl: 'http://localhost:8000/api',
     public: {
-      // /api-proxy → server/routes/api-proxy/[...path].ts → Laravel (même réseau WSL2)
+      // /api-proxy → server/routes/api-proxy/[...path].ts → Laravel
       apiBaseUrl: '/api-proxy',
     },
   },

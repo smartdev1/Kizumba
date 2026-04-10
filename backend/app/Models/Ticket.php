@@ -10,6 +10,7 @@ class Ticket extends Model
     protected $fillable = [
         'slug',
         'name',
+        'subtitle',
         'description',
         'category',
         'price',
@@ -18,6 +19,7 @@ class Ticket extends Model
         'stock',
         'sold',
         'is_active',
+        'image_path',
     ];
 
     protected $casts = [
