@@ -203,11 +203,27 @@
               </div>
             </div>
 
+            <!-- CGP -->
+            <label class="flex items-start gap-3 cursor-pointer mb-5 group">
+              <input
+                v-model="cgpAccepted"
+                type="checkbox"
+                class="mt-0.5 w-4 h-4 flex-shrink-0 accent-yellow-500 cursor-pointer"
+              />
+              <span class="text-white/50 text-xs leading-relaxed group-hover:text-white/70 transition-colors">
+                J'ai lu et j'accepte les
+                <NuxtLink to="/conditions-generales" target="_blank" class="text-gold-400 underline hover:text-gold-300">
+                  Conditions Générales de Participation
+                </NuxtLink>
+                au UKWC 2026.
+              </span>
+            </label>
+
             <button
               @click="submitPayment"
-              :disabled="loading || cartStore.isEmpty"
+              :disabled="loading || cartStore.isEmpty || !cgpAccepted"
               class="w-full py-4 rounded-2xl font-extrabold uppercase tracking-widest text-sm transition-all duration-300"
-              :class="loading ? 'btn-pay-loading' : 'btn-pay'">
+              :class="loading ? 'btn-pay-loading' : !cgpAccepted ? 'bg-white/10 text-white/30 cursor-not-allowed' : 'btn-pay'">
               <span v-if="loading" class="flex items-center justify-center gap-2">
                 <span class="animate-spin inline-block w-4 h-4 border-2 border-black/40 border-t-black rounded-full"></span>
                 Redirection...
@@ -242,6 +258,7 @@ const orderSuccess  = ref(false)
 const successTxRef  = ref(null)
 const pendingStatus = ref(false)
 const promoInput    = ref('')
+const cgpAccepted   = ref(false)
 
 // ─── Code promo ──────────────────────────────────────
 async function applyPromo() {
