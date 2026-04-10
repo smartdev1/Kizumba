@@ -39,10 +39,10 @@
             <span class="block text-[clamp(4rem,12vw,11rem)] leading-none tracking-tighter text-white/10">2026</span>
           </h1>
           <div class="flex flex-wrap gap-4 mt-8 animate-fade-up" style="animation-delay:0.4s">
-            <a href="shop"
+            <NuxtLink to="/shop"
               class="bg-gold-500 hover:bg-gold-400 text-black font-extrabold uppercase tracking-widest px-8 py-4 rounded-full transition-all duration-300 shadow-lg shadow-gold-500/30 hover:-translate-y-1 text-sm">
               Réserver mes places
-            </a>
+            </NuxtLink>
             <a href="#programme"
               class="border border-gold-500/40 hover:border-gold-500 text-white/70 hover:text-white font-bold uppercase tracking-widest px-8 py-4 rounded-full transition-all duration-300 text-sm">
               Voir le programme
