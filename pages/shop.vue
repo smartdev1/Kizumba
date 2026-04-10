@@ -49,7 +49,7 @@
           <div class="relative">
             <div class="overflow-hidden">
               <div class="flex transition-transform duration-500 ease-out"
-                   :style="{ transform: `translateX(-${eventPassCurrentIndex * 33.333}%)` }">
+                   :style="{ transform: `translateX(-${Math.min(eventPassCurrentIndex * 100, Math.max(0, (eventPasses.length - 3) / 3 * 100))}%)` }">
                 <div v-for="pass in eventPasses" :key="pass.slug"
                      class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
                   <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
@@ -134,7 +134,7 @@
           <div class="relative">
             <div class="overflow-hidden">
               <div class="flex transition-transform duration-500 ease-out"
-                   :style="{ transform: `translateX(-${fullPassStayCurrentIndex * 33.333}%)` }">
+                   :style="{ transform: `translateX(-${Math.min(fullPassStayCurrentIndex * 100, Math.max(0, (fullPassStayTickets.length - 3) / 3 * 100))}%)` }">
                 <div v-for="ticket in fullPassStayTickets" :key="ticket.slug"
                      class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
                   <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
@@ -292,24 +292,16 @@ const { data: ticketsData, pending: ticketsLoading } = useAsyncData(
   () => getTickets(),
 )
 
-const SECTION_CATEGORIES = {
-  fullPassStay:      'Full Pass & Stay',
-  shapeExperience:   'Shape Your Experience',
-}
-
 const eventPasses = computed(() =>
-  (ticketsData.value ?? []).filter((t) =>
-    t.category !== SECTION_CATEGORIES.fullPassStay &&
-    t.category !== SECTION_CATEGORIES.shapeExperience
-  )
+  (ticketsData.value ?? []).filter((t) => t.category === 'Event Pass')
 )
 
 const fullPassStayTickets = computed(() =>
-  (ticketsData.value ?? []).filter((t) => t.category === SECTION_CATEGORIES.fullPassStay)
+  (ticketsData.value ?? []).filter((t) => t.category === 'Full Pass & Stay')
 )
 
 const shapeExperienceTickets = computed(() =>
-  (ticketsData.value ?? []).filter((t) => t.category === SECTION_CATEGORIES.shapeExperience)
+  (ticketsData.value ?? []).filter((t) => t.category === 'Shape Your Experience')
 )
 
 const eventPassCurrentIndex = ref(0)

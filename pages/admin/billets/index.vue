@@ -112,7 +112,12 @@
               </div>
               <div>
                 <label class="label-field">Catégorie *</label>
-                <input v-model="form.category" required type="text" placeholder="Full Pass" class="admin-input" />
+                <select v-model="form.category" required class="admin-input">
+                  <option value="" disabled>Choisir une catégorie</option>
+                  <option value="Event Pass">Event Pass</option>
+                  <option value="Full Pass & Stay">Full Pass & Stay</option>
+                  <option value="Shape Your Experience">Shape Your Experience</option>
+                </select>
               </div>
               <div>
                 <label class="label-field">Devise</label>
