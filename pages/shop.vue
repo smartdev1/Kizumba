@@ -55,7 +55,7 @@
                   <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
                        :class="{ 'opacity-50': !pass.is_available }">
                     <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
-                      <img v-if="pass.image_url" :src="pass.image_url" :alt="pass.name" class="w-full h-full object-cover" />
+                      <img v-if="pass.image_url" :src="pass.image_url" :alt="pass.name" class="w-full h-full object-cover object-[17%]" />
                       <span v-else class="text-6xl text-gold-400 absolute">🎟️</span>
                       <div class="absolute top-3 right-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs">PASS</div>
                       <div v-if="pass.is_early_bird" class="absolute top-3 left-3 bg-gold-500 text-black text-xs font-black px-2 py-1 rounded uppercase tracking-wide">
@@ -140,7 +140,7 @@
                   <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
                        :class="{ 'opacity-50': !ticket.is_available }">
                     <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
-                      <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name" class="w-full h-full object-cover" />
+                      <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name" class="w-full h-full object-cover object-left" />
                       <span v-else class="text-6xl text-gold-400 absolute">🏨</span>
                       <div class="absolute top-3 right-3 bg-black/60 px-2 py-1 rounded text-gold-400 text-xs">PASS</div>
                       <div v-if="ticket.is_early_bird" class="absolute top-3 left-3 bg-gold-500 text-black text-xs font-black px-2 py-1 rounded uppercase tracking-wide">
@@ -223,7 +223,7 @@
             <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1"
                  :class="{ 'opacity-50': !ticket.is_available }">
               <div class="h-40 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
-                <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name" class="w-full h-full object-cover" />
+                <img v-if="ticket.image_url" :src="ticket.image_url" :alt="ticket.name" class="w-full h-full object-cover object-left" />
                 <span v-else class="text-5xl text-gold-400 absolute">🏝️</span>
                 <div v-if="ticket.is_early_bird" class="absolute top-3 left-3 bg-gold-500 text-black text-xs font-black px-2 py-1 rounded uppercase tracking-wide">
                   🐦 Early Bird
