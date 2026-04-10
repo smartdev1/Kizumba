@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 | Routes publiques — frontend Nuxt
 |--------------------------------------------------------------------------
 */
-Route::prefix('tickets')->group(function () {
+Route::prefix('tickets')->middleware('throttle:60,1')->group(function () {
     Route::get('/', [TicketController::class, 'index']);
     Route::get('/{slug}', [TicketController::class, 'show']);
 });
@@ -28,14 +28,15 @@ Route::get('/artists', function () {
             ->orderBy('name')
             ->get(),
     ]);
-});
+})->middleware('throttle:60,1');
 
-Route::prefix('payments')->group(function () {
+Route::prefix('payments')->middleware('throttle:10,1')->group(function () {
     Route::post('/initiate', [PaymentController::class, 'initiate']);
-    Route::get('/{txRef}/status', [PaymentController::class, 'status']);
+    Route::post('/{txRef}/status', [PaymentController::class, 'status']);
 });
 
-Route::post('/promo-codes/validate', [PromoCodeController::class, 'validate']);
+Route::post('/promo-codes/validate', [PromoCodeController::class, 'validate'])
+    ->middleware('throttle:20,1');
 
 /*
 |--------------------------------------------------------------------------
@@ -96,14 +97,18 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
 Route::post('/admin/login', function (\Illuminate\Http\Request $request) {
     $request->validate([
         'email'    => 'required|email',
-        'password' => 'required|string',
+        'password' => 'required|string|min:8',
     ]);
 
     if (!\Illuminate\Support\Facades\Auth::attempt($request->only('email', 'password'))) {
+        \Illuminate\Support\Facades\Log::warning('Failed admin login attempt', [
+            'email' => $request->input('email'),
+            'ip'    => $request->ip(),
+        ]);
         return response()->json(['message' => 'Identifiants invalides'], 401);
     }
 
-    $user = \App\Models\User::where('email', $request->email)->first();
+    $user = \App\Models\User::where('email', $request->input('email'))->first();
 
     if (!$user->isAdmin()) {
         return response()->json(['message' => 'Accès refusé'], 403);
@@ -112,9 +117,12 @@ Route::post('/admin/login', function (\Illuminate\Http\Request $request) {
     $token = $user->createToken('admin-token', ['admin'])->plainTextToken;
 
     return response()->json(['token' => $token, 'user' => $user]);
-});
+})->middleware('throttle:5,1');
 
 Route::post('/admin/logout', function (\Illuminate\Http\Request $request) {
-    $request->user()->currentAccessToken()->delete();
+    $user = $request->user();
+    if ($user) {
+        $user->currentAccessToken()->delete();
+    }
     return response()->json(['message' => 'Déconnecté']);
-})->middleware('auth:sanctum');
+});  // Pas de middleware auth — permet de déconnecter même si le token est expiré

@@ -76,14 +76,18 @@ class PayDunyaService
             ];
         }
 
-        Log::debug('PayDunya createInvoice → payload', ['payload' => $payload]);
+        Log::debug('PayDunya createInvoice → request', [
+            'tx_ref'      => $params['tx_ref'],
+            'amount'      => $params['amount'],
+            'items_count' => count($params['items'] ?? []),
+        ]);
 
         $response = Http::withHeaders($this->headers())
             ->post("{$this->baseUrl}/checkout-invoice/create", $payload);
 
         Log::debug('PayDunya createInvoice ← response', [
-            'status' => $response->status(),
-            'body'   => $response->json(),
+            'status'        => $response->status(),
+            'response_code' => $response->json('response_code'),
         ]);
 
         if ($response->failed()) {

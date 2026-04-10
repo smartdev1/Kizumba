@@ -18,7 +18,6 @@ class Ticket extends Model
         'currency',
         'includes',
         'stock',
-        'sold',
         'is_active',
         'image_path',
         'early_bird_price',

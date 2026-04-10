@@ -26,6 +26,16 @@ class WebhookController extends Controller
      */
     public function paydunya(Request $request): Response
     {
+        // Restriction par IP des serveurs PayDunya
+        $allowedIps = array_filter(
+            explode(',', config('paydunya.webhook_ips', ''))
+        );
+
+        if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
+            Log::warning('PayDunya webhook: IP non autorisée', ['ip' => $request->ip()]);
+            return response('forbidden', 403);
+        }
+
         // PayDunya envoie le token via query string ou body
         $token = $request->query('data') ?? $request->input('data');
 

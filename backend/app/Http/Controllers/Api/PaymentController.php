@@ -152,14 +152,20 @@ class PaymentController extends Controller
     }
 
     /**
-     * GET /api/payments/{tx_ref}/status
+     * POST /api/payments/{tx_ref}/status
      * Retourne le statut d'un paiement (utilisé par le frontend après retour).
+     * L'email du client est requis pour prévenir l'énumération (IDOR).
      * Fallback actif : si le paiement est encore pending, on vérifie directement
      * chez PayDunya — utile quand le webhook IPN n'a pas été reçu (ngrok expiré, etc.).
      */
-    public function status(string $txRef): JsonResponse
+    public function status(Request $request, string $txRef): JsonResponse
     {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
         $payment = Payment::where('tx_ref', $txRef)
+            ->where('customer_email', strtolower(trim($request->input('email'))))
             ->with('issuedTickets')
             ->firstOrFail();
 
@@ -169,11 +175,9 @@ class PaymentController extends Controller
         }
 
         return response()->json([
-            'status'         => $payment->status,
-            'amount'         => $payment->amount,
-            'currency'       => $payment->currency,
-            'customer_name'  => $payment->customer_name,
-            'customer_email' => $payment->customer_email,
+            'status'   => $payment->status,
+            'amount'   => $payment->amount,
+            'currency' => $payment->currency,
             'issued_tickets' => $payment->isCompleted()
                 ? $payment->issuedTickets->map(fn ($t) => [
                     'uid'         => $t->uid,
