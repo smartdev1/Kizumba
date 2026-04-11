@@ -101,7 +101,7 @@
       <div v-else class="grid lg:grid-cols-[1fr_380px] gap-8">
 
         <!-- Colonne gauche : formulaire -->
-        <div class="space-y-8">
+        <div class="space-y-8 order-last lg:order-first">
 
           <!-- Récapitulatif panier -->
           <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
@@ -123,13 +123,13 @@
                   <div class="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl overflow-hidden">
                     <button
                       @click="cartStore.updateQuantity(item.slug, item.quantity - 1)"
-                      class="w-8 h-8 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-lg leading-none"
+                      class="w-10 h-10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-xl leading-none"
                       aria-label="Réduire la quantité"
                     >−</button>
-                    <span class="w-6 text-center text-sm font-bold tabular-nums">{{ item.quantity }}</span>
+                    <span class="w-7 text-center text-sm font-bold tabular-nums">{{ item.quantity }}</span>
                     <button
                       @click="cartStore.updateQuantity(item.slug, item.quantity + 1)"
-                      class="w-8 h-8 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-lg leading-none"
+                      class="w-10 h-10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-xl leading-none"
                       aria-label="Augmenter la quantité"
                     >+</button>
                   </div>
@@ -230,8 +230,8 @@
         </div>
 
         <!-- Colonne droite : total + bouton payer -->
-        <div class="space-y-6">
-          <div class="bg-white/5 border border-white/10 rounded-2xl p-6 sticky top-24">
+        <div class="space-y-6 order-first lg:order-last">
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-6 lg:sticky lg:top-24">
             <h2 class="text-lg font-bold uppercase tracking-wider text-gold-400 mb-6" style="font-family:'Bebas Neue',sans-serif;">
               Récapitulatif
             </h2>
@@ -499,11 +499,14 @@ async function submitPayment() {
   border-color: rgba(255,255,255,0.1) !important;
 }
 .stepper-label {
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: rgba(255,255,255,0.35);
   white-space: nowrap;
+}
+@media (max-width: 400px) {
+  .stepper-label { display: none; }
 }
 .stepper-label-active {
   color: #C9A84C !important;

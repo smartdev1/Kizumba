@@ -35,7 +35,7 @@
           <CountdownTimer />
         </div>
 
-        <button class="md:hidden text-gold-500 p-1" @click="toggleMenu" :aria-label="isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'">
+        <button class="md:hidden text-gold-500 p-2.5 -mr-1" @click="toggleMenu" :aria-label="isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'">
           <svg v-if="!isMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -51,7 +51,7 @@
         <NuxtLink to="/shop" class="mobile-nav-link" :class="{ 'mobile-nav-link-active': route.path === '/shop' }" @click="isMenuOpen = false">Shop</NuxtLink>
         <NuxtLink to="/partners" class="mobile-nav-link" :class="{ 'mobile-nav-link-active': route.path === '/partners' }" @click="isMenuOpen = false">Partners</NuxtLink>
         <NuxtLink to="/about" class="mobile-nav-link" :class="{ 'mobile-nav-link-active': route.path === '/about' }" @click="isMenuOpen = false">About Us</NuxtLink>
-        <NuxtLink to="/checkout" class="flex items-center gap-2 py-3 text-gold-500 font-semibold text-sm border-t border-gold-500/10 mt-2 pt-4" @click="isMenuOpen = false">
+        <NuxtLink to="/checkout" class="flex items-center gap-2 py-4 text-gold-500 font-semibold text-base border-t border-gold-500/10 mt-2 pt-4" @click="isMenuOpen = false">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
           </svg>
@@ -103,8 +103,8 @@ const toggleMenu = () => {
 }
 .mobile-nav-link {
   display: block;
-  padding: 0.625rem 0;
-  font-size: 0.875rem;
+  padding: 0.875rem 0;
+  font-size: 0.9375rem;
   color: rgba(255,255,255,0.7);
   transition: color 0.2s;
 }

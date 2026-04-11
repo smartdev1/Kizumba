@@ -34,10 +34,10 @@
         </div>
 
         <!-- Placeholder partner cards -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
           <div v-for="partner in partners" :key="partner.name"
-            class="bg-white/5 border border-white/10 hover:border-gold-500/40 rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-1 group">
-            <div class="text-5xl mb-4">{{ partner.emoji }}</div>
+            class="bg-white/5 border border-white/10 hover:border-gold-500/40 rounded-2xl p-5 md:p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-1 group">
+            <div class="text-4xl md:text-5xl mb-3 md:mb-4">{{ partner.emoji }}</div>
             <h3 class="font-bold text-white/80 group-hover:text-gold-400 transition-colors text-sm">{{ partner.name }}</h3>
             <p class="text-white/30 text-xs mt-1">{{ partner.category }}</p>
           </div>
@@ -49,7 +49,7 @@
     <section class="py-24 border-t border-gold-500/10 bg-gradient-to-b from-transparent via-gold-900/5 to-transparent">
       <div class="container mx-auto px-6 text-center">
         <div class="section-label mb-6">Rejoignez-nous</div>
-        <h2 class="text-5xl md:text-6xl font-black uppercase mb-6" style="font-family:'Bebas Neue',sans-serif;">
+        <h2 class="text-4xl sm:text-5xl md:text-6xl font-black uppercase mb-6" style="font-family:'Bebas Neue',sans-serif;">
           Devenez<br /><span class="gradient-text-gold">partenaire</span>
         </h2>
         <p class="text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">

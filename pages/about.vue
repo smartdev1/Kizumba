@@ -14,7 +14,7 @@
       </div>
 
       <!-- Generated SVG illustration - African dancers silhouette -->
-      <div class="absolute right-0 top-0 h-full w-1/2 z-0 opacity-20">
+      <div class="absolute right-0 top-0 h-full w-1/2 z-0 opacity-20 hidden sm:block">
         <svg viewBox="0 0 600 800" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-full w-full object-cover">
           <!-- Dancer 1 -->
           <ellipse cx="180" cy="120" rx="28" ry="28" fill="#C9A84C"/>
@@ -56,10 +56,10 @@
             </span>
           </div>
           <h1 class="hero-title animate-fade-up" style="animation-delay: 0.2s">
-            <span class="block text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">United</span>
-            <span class="block text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter gradient-text-gold">Kizdom</span>
-            <span class="block text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">World</span>
-            <span class="block text-5xl md:text-7xl font-black uppercase leading-none tracking-tighter text-white/40">Congress</span>
+            <span class="block text-5xl sm:text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">United</span>
+            <span class="block text-5xl sm:text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter gradient-text-gold">Kizdom</span>
+            <span class="block text-5xl sm:text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">World</span>
+            <span class="block text-4xl sm:text-5xl md:text-7xl font-black uppercase leading-none tracking-tighter text-white/40">Congress</span>
           </h1>
           <p class="mt-8 text-white/60 text-lg leading-relaxed max-w-xl animate-fade-up" style="animation-delay: 0.35s">
             Une plateforme internationale dédiée au rayonnement des danses afro, afro-latines, caribéennes
@@ -84,7 +84,7 @@
     <!-- Stats bar -->
     <section class="border-y border-gold-500/20 bg-black/60 backdrop-blur-sm">
       <div class="container mx-auto px-6 py-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           <div v-for="stat in stats" :key="stat.label" class="text-center stat-item">
             <div class="text-4xl font-black gradient-text-gold mb-1">{{ stat.value }}</div>
             <div class="text-white/40 text-xs tracking-widest uppercase">{{ stat.label }}</div>
@@ -94,10 +94,10 @@
     </section>
 
     <!-- About description -->
-    <section class="py-28 relative">
+    <section class="py-16 md:py-28 relative">
       <div class="absolute inset-0 bg-gradient-to-b from-transparent via-gold-900/5 to-transparent pointer-events-none" />
       <div class="container mx-auto px-6">
-        <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div class="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
 
           <!-- Left: Text -->
           <div>
@@ -197,7 +197,7 @@
             </div>
 
             <!-- Floating badge -->
-            <div class="absolute -top-5 -right-5 bg-gold-500 text-black font-black text-sm px-4 py-2 rounded-full rotate-3 shadow-lg shadow-gold-500/30">
+            <div class="absolute -top-4 -right-3 sm:-top-5 sm:-right-5 bg-gold-500 text-black font-black text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full rotate-3 shadow-lg shadow-gold-500/30">
               Bénin 🇧🇯
             </div>
           </div>
@@ -215,9 +215,9 @@
           </h2>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           <div v-for="dance in danceStyles" :key="dance.name"
-            class="dance-card group relative bg-white/5 hover:bg-gold-500/10 border border-white/10 hover:border-gold-500/40 rounded-2xl p-5 text-center cursor-default transition-all duration-300">
+            class="dance-card group relative bg-white/5 hover:bg-gold-500/10 border border-white/10 hover:border-gold-500/40 rounded-2xl p-4 md:p-5 text-center cursor-default transition-all duration-300">
             <div class="text-3xl mb-3">{{ dance.emoji }}</div>
             <div class="text-white/80 group-hover:text-white font-medium text-sm transition-colors">{{ dance.name }}</div>
             <div class="absolute inset-0 rounded-2xl bg-gold-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -252,7 +252,7 @@
     <!-- CTA -->
     <section class="py-24 border-t border-gold-500/10">
       <div class="container mx-auto px-6 text-center">
-        <h2 class="text-5xl md:text-7xl font-black uppercase mb-6">
+        <h2 class="text-4xl sm:text-5xl md:text-7xl font-black uppercase mb-6">
           Rejoignez<br/>
           <span class="gradient-text-gold">l'aventure</span>
         </h2>

@@ -1,9 +1,9 @@
 <template>
-  <footer class="bg-black border-t border-[#C9A032]/20 pt-16 pb-8 px-4">
+  <footer class="bg-black border-t border-[#C9A032]/20 pt-10 md:pt-16 pb-8 px-4">
     <div class="container mx-auto max-w-6xl">
 
       <!-- Grille principale -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-10 mb-10 md:mb-12">
 
         <!-- Identité -->
         <div class="md:col-span-2">

@@ -46,12 +46,12 @@
 
         <!-- Carousel -->
         <template v-else>
-          <div class="relative px-10">
+          <div class="relative px-5 sm:px-10">
             <div class="overflow-hidden">
               <div class="flex transition-transform duration-500 ease-out"
                    :style="{ transform: `translateX(-${Math.min(eventPassCurrentIndex * 100, Math.max(0, (eventPasses.length - 3) / 3 * 100))}%)` }">
                 <div v-for="pass in eventPasses" :key="pass.slug"
-                     class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
+                     class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-2 sm:px-3">
                   <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
                        :class="{ 'opacity-50': !pass.is_available }">
                     <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
@@ -136,12 +136,12 @@
 
         <!-- Carousel -->
         <template v-else>
-          <div class="relative px-10">
+          <div class="relative px-5 sm:px-10">
             <div class="overflow-hidden">
               <div class="flex transition-transform duration-500 ease-out"
                    :style="{ transform: `translateX(-${Math.min(fullPassStayCurrentIndex * 100, Math.max(0, (fullPassStayTickets.length - 3) / 3 * 100))}%)` }">
                 <div v-for="ticket in fullPassStayTickets" :key="ticket.slug"
-                     class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
+                     class="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-2 sm:px-3">
                   <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
                        :class="{ 'opacity-50': !ticket.is_available }">
                     <div class="h-48 overflow-hidden relative bg-gradient-to-br from-gold-900/30 to-black flex items-center justify-center">
@@ -293,28 +293,28 @@
         v-if="!cartStore.isEmpty"
         class="fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-t border-[#C9A84C]/30 px-4 py-3 md:py-4"
       >
-        <div class="container mx-auto max-w-4xl flex items-center justify-between gap-4">
-          <div class="flex items-center gap-3 min-w-0">
+        <div class="container mx-auto max-w-4xl flex items-center justify-between gap-2 sm:gap-4">
+          <div class="flex items-center gap-2 sm:gap-3 min-w-0">
             <div class="w-8 h-8 rounded-full bg-[#C9A84C]/20 flex items-center justify-center shrink-0">
               <svg class="w-4 h-4 text-[#C9A84C]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
               </svg>
             </div>
             <div class="min-w-0">
-              <p class="text-white font-bold text-sm">
+              <p class="text-white font-bold text-xs sm:text-sm truncate">
                 {{ cartStore.itemCount }} billet{{ cartStore.itemCount > 1 ? 's' : '' }} sélectionné{{ cartStore.itemCount > 1 ? 's' : '' }}
               </p>
               <p class="text-[#C9A84C] text-xs font-bold">{{ cartStore.subtotal.toLocaleString() }} FCFA</p>
             </div>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
+          <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               @click="cartStore.clearCart()"
-              class="text-white/40 hover:text-red-400 transition-colors text-xs px-3 py-2 rounded-lg hover:bg-white/5"
+              class="text-white/40 hover:text-red-400 transition-colors text-xs px-2 sm:px-3 py-2 rounded-lg hover:bg-white/5"
             >Vider</button>
             <button
               @click="goToCheckout"
-              class="bg-[#C9A84C] hover:bg-[#F5D78A] text-black font-extrabold uppercase tracking-wider text-sm px-6 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 shadow-lg shadow-[#C9A84C]/30"
+              class="bg-[#C9A84C] hover:bg-[#F5D78A] text-black font-extrabold uppercase tracking-wider text-xs sm:text-sm px-4 sm:px-6 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 shadow-lg shadow-[#C9A84C]/30"
             >Commander →</button>
           </div>
         </div>
