@@ -1,0 +1,224 @@
+# ==============================================================================
+#  CD — Déploiement Continu · UKWC 2026
+#  Déclenché sur : push vers main (après succès de la CI)
+#  Stratégie : SSH + rsync vers serveur de production
+#
+#  Secrets GitHub requis (Settings → Secrets → Actions) :
+#  ┌──────────────────────────────┬────────────────────────────────────────────┐
+#  │ Secret                       │ Description                                │
+#  ├──────────────────────────────┼────────────────────────────────────────────┤
+#  │ SSH_PRIVATE_KEY              │ Clé SSH privée (sans passphrase)           │
+#  │ SSH_HOST                     │ Hostname ou IP du serveur                  │
+#  │ SSH_USER                     │ Utilisateur SSH (ex: deploy, ubuntu)       │
+#  │ SSH_PORT                     │ Port SSH (défaut : 22)                     │
+#  │ DEPLOY_PATH_FRONTEND         │ Chemin absolu frontend (ex: /var/www/html) │
+#  │ DEPLOY_PATH_BACKEND          │ Chemin absolu backend  (ex: /var/www/api)  │
+#  │ PROD_APP_URL                 │ URL publique (ex: https://ukwc2026.com)    │
+#  │ PROD_APP_KEY                 │ Clé Laravel (base64:...)                   │
+#  │ PROD_DB_HOST                 │ Hôte MySQL production                      │
+#  │ PROD_DB_DATABASE             │ Nom de la base de données                  │
+#  │ PROD_DB_USERNAME             │ Utilisateur MySQL                          │
+#  │ PROD_DB_PASSWORD             │ Mot de passe MySQL                         │
+#  │ PROD_PAYDUNYA_MODE           │ live                                       │
+#  │ PROD_PAYDUNYA_MASTER_KEY     │ Clé PayDunya live                          │
+#  │ PROD_PAYDUNYA_PRIVATE_KEY    │ Clé privée PayDunya live                   │
+#  │ PROD_PAYDUNYA_TOKEN          │ Token PayDunya live                        │
+#  │ PROD_MAIL_HOST               │ SMTP host                                  │
+#  │ PROD_MAIL_USERNAME           │ SMTP username                              │
+#  │ PROD_MAIL_PASSWORD           │ SMTP password                              │
+#  │ PROD_MAIL_FROM_ADDRESS       │ Adresse expéditeur emails                  │
+#  │ PROD_ADMIN_EMAIL             │ Email du premier compte admin              │
+#  │ PROD_ADMIN_PASSWORD          │ Mot de passe admin (changé après premier   │
+#  │                              │ déploiement)                               │
+#  └──────────────────────────────┴────────────────────────────────────────────┘
+# ==============================================================================
+
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+# Empêche deux déploiements simultanés
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # VÉRIFICATION — La CI doit être verte avant de déployer
+  # ────────────────────────────────────────────────────────────────────────────
+  wait-for-ci:
+    name: Attendre la CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vérifier que la CI est passée
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.sha }}
+          check-name: 'Backend — Tests Laravel 11'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 15
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 1 — Build du frontend statique
+  # ────────────────────────────────────────────────────────────────────────────
+  build-frontend:
+    name: Build Frontend statique
+    runs-on: ubuntu-latest
+    needs: wait-for-ci
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Build statique Nuxt (nuxt generate)
+        run: npm run generate
+        env:
+          # En production statique, le frontend appelle l'API Laravel directement
+          NUXT_API_BACKEND_URL: ${{ secrets.PROD_APP_URL }}/api
+          NUXT_PUBLIC_API_BASE_URL: ${{ secrets.PROD_APP_URL }}/api
+          NODE_ENV: production
+
+      - name: Archiver les fichiers générés
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: .output/public/   # Dossier de sortie de nuxt generate
+          retention-days: 1
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 2 — Déploiement Frontend (rsync → serveur)
+  # ────────────────────────────────────────────────────────────────────────────
+  deploy-frontend:
+    name: Déployer Frontend
+    runs-on: ubuntu-latest
+    needs: build-frontend
+    environment: production
+
+    steps:
+      - name: Télécharger les fichiers générés
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+
+      - name: Configurer la clé SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Ajouter le serveur aux known_hosts
+        run: |
+          ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Déployer via rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -p ${{ secrets.SSH_PORT || 22 }}" \
+            dist/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH_FRONTEND }}/
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 3 — Déploiement Backend Laravel (rsync + artisan)
+  # ────────────────────────────────────────────────────────────────────────────
+  deploy-backend:
+    name: Déployer Backend Laravel
+    runs-on: ubuntu-latest
+    needs: wait-for-ci
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurer la clé SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Ajouter le serveur aux known_hosts
+        run: |
+          ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Générer le fichier .env de production
+        run: |
+          cat > backend/.env.production <<EOF
+          APP_NAME="United Kizdom World Congress"
+          APP_ENV=production
+          APP_KEY=${{ secrets.PROD_APP_KEY }}
+          APP_DEBUG=false
+          APP_URL=${{ secrets.PROD_APP_URL }}
+          APP_LOCALE=fr
+          APP_FALLBACK_LOCALE=fr
+
+          LOG_CHANNEL=stack
+          LOG_LEVEL=error
+
+          DB_CONNECTION=mysql
+          DB_HOST=${{ secrets.PROD_DB_HOST }}
+          DB_PORT=3306
+          DB_DATABASE=${{ secrets.PROD_DB_DATABASE }}
+          DB_USERNAME=${{ secrets.PROD_DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+
+          SESSION_DRIVER=database
+          CACHE_STORE=database
+          QUEUE_CONNECTION=database
+
+          FRONTEND_URL=${{ secrets.PROD_APP_URL }}
+
+          PAYDUNYA_MODE=${{ secrets.PROD_PAYDUNYA_MODE }}
+          PAYDUNYA_MASTER_KEY=${{ secrets.PROD_PAYDUNYA_MASTER_KEY }}
+          PAYDUNYA_PRIVATE_KEY=${{ secrets.PROD_PAYDUNYA_PRIVATE_KEY }}
+          PAYDUNYA_TOKEN=${{ secrets.PROD_PAYDUNYA_TOKEN }}
+          PAYDUNYA_STORE_NAME="United Kizdom World Congress"
+          PAYDUNYA_STORE_TAGLINE="Festival de danse kizomba"
+          PAYDUNYA_STORE_ADDRESS="Cotonou, Bénin"
+          PAYDUNYA_RETURN_URL="${{ secrets.PROD_APP_URL }}/checkout"
+          PAYDUNYA_CANCEL_URL="${{ secrets.PROD_APP_URL }}/shop"
+          PAYDUNYA_CALLBACK_URL="${{ secrets.PROD_APP_URL }}/api/webhooks/paydunya"
+
+          MAIL_MAILER=smtp
+          MAIL_HOST=${{ secrets.PROD_MAIL_HOST }}
+          MAIL_PORT=587
+          MAIL_USERNAME=${{ secrets.PROD_MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.PROD_MAIL_PASSWORD }}
+          MAIL_SCHEME=tls
+          MAIL_FROM_ADDRESS=${{ secrets.PROD_MAIL_FROM_ADDRESS }}
+          MAIL_FROM_NAME="United Kizdom World Congress"
+          EOF
+
+      - name: Déployer le code backend via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='.env' \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='storage/logs/*.log' \
+            --exclude='storage/framework/cache' \
+            --exclude='storage/app/public' \
+            -e "ssh -p ${{ secrets.SSH_PORT || 22 }}" \
+            backend/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH_BACKEND }}/
+
+      - name: Envoyer le fichier .env de production
+        run: |
+          scp -P ${{ secrets.SSH_PORT || 22 }} \
+            backend/.env.production \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH_BACKEND }}/.env
+
+      - name: Exécuter les commandes post-déploiement sur le serveur
+        run: |
+          ssh -p ${{ secrets.SSH_PORT || 22 }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ secrets.DEPLOY_PATH_BACKEND }} && bash scripts/post-deploy.sh"
