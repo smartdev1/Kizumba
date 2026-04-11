@@ -1,0 +1,81 @@
+# ==============================================================================
+#  Nginx — Configuration LWS VPS  ·  United Kizdom World Congress
+# ==============================================================================
+#  Architecture :
+#    Internet → Nginx (80/443) → Nuxt (127.0.0.1:3000)
+#                                  └→ proxy interne → Laravel (127.0.0.1:8000)
+#
+#  Laravel N'est PAS exposé directement sur internet.
+#  Toutes les requêtes API passent par Nuxt (/api-proxy/*).
+#
+#  Installation :
+#    sudo cp nginx.conf.example /etc/nginx/sites-available/ukwc
+#    sudo ln -s /etc/nginx/sites-available/ukwc /etc/nginx/sites-enabled/
+#    sudo nginx -t && sudo systemctl reload nginx
+#
+#  SSL (Let's Encrypt) :
+#    sudo apt install certbot python3-certbot-nginx
+#    sudo certbot --nginx -d votre-domaine.com -d www.votre-domaine.com
+# ==============================================================================
+
+# Redirection HTTP → HTTPS
+server {
+    listen 80;
+    listen [::]:80;
+    server_name votre-domaine.com www.votre-domaine.com;
+
+    return 301 https://$host$request_uri;
+}
+
+# Serveur principal HTTPS
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name votre-domaine.com www.votre-domaine.com;
+
+    # ── SSL (généré par Certbot) ───────────────────────────────────────────────
+    ssl_certificate     /etc/letsencrypt/live/votre-domaine.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/votre-domaine.com/privkey.pem;
+    include             /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
+
+    # ── Sécurité ───────────────────────────────────────────────────────────────
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+
+    # ── Taille max des uploads (billets, images artistes) ─────────────────────
+    client_max_body_size 10M;
+
+    # ── Logs ───────────────────────────────────────────────────────────────────
+    access_log /var/log/nginx/ukwc-access.log;
+    error_log  /var/log/nginx/ukwc-error.log;
+
+    # ── Tout le trafic → Nuxt (port 3000) ─────────────────────────────────────
+    # Nuxt gère lui-même :
+    #   - Les pages frontend (SSR)
+    #   - Le proxy /api-proxy/* → Laravel (127.0.0.1:8000)
+    location / {
+        proxy_pass         http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        'upgrade';
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        proxy_cache_bypass $http_upgrade;
+
+        # Timeouts (paiement PayDunya peut prendre quelques secondes)
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 10s;
+    }
+}
+
+# ==============================================================================
+#  NOTE : Laravel n'a PAS de bloc server dédié.
+#  Il écoute uniquement sur 127.0.0.1:8000 (non exposé sur internet).
+#  Le proxy Nuxt (server/routes/api-proxy/[...path].ts) fait le lien.
+# ==============================================================================
