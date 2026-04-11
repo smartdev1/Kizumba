@@ -1,0 +1,134 @@
+{
+  "tickets": [
+    {
+      "slug": "full-pass",
+      "name": "Full Pass",
+      "price": 120000,
+      "currency": "FCFA",
+      "category": "Full Pass",
+      "includes": ["All Parties & Socials access", "All workshops & masterclasses access", "Tourism"],
+      "description": "Accès complet à toutes les activités du festival",
+      "stock": 100
+    },
+    {
+      "slug": "parties-classes",
+      "name": "Parties & Classes",
+      "price": 90000,
+      "currency": "FCFA",
+      "category": "Parties & Classes",
+      "includes": ["All Parties access", "Selected workshops access"],
+      "description": "Accès aux soirées et aux cours sélectionnés",
+      "stock": 150
+    },
+    {
+      "slug": "parties-only",
+      "name": "Parties Only",
+      "price": 50000,
+      "currency": "FCFA",
+      "category": "Parties Only",
+      "includes": ["All Parties access", "Social dancing"],
+      "description": "Accès uniquement aux soirées",
+      "stock": 200
+    },
+    {
+      "slug": "tourism",
+      "name": "Tourism Pack",
+      "price": 70000,
+      "currency": "FCFA",
+      "category": "Tourism",
+      "includes": ["City tours", "Cultural experiences", "Transport included"],
+      "description": "Découverte touristique autour du festival",
+      "stock": 80
+    },
+    {
+      "slug": "classes-only",
+      "name": "Classes Only",
+      "price": 60000,
+      "currency": "FCFA",
+      "category": "Classes Only",
+      "includes": ["Workshops access", "Masterclasses"],
+      "description": "Accès uniquement aux cours",
+      "stock": 120
+    },
+    {
+      "slug": "fps-single-standard",
+      "name": "Full Pass & Stay — Single Standard",
+      "price": 355000,
+      "currency": "XOF",
+      "category": "Full Pass & Stay",
+      "includes": ["1 Full pass", "1 appt chambre + salon standard", "1 petit dej / jour"],
+      "description": "Full pass + hébergement single standard (2 pers. max)",
+      "stock": 30
+    },
+    {
+      "slug": "fps-single-premium",
+      "name": "Full Pass & Stay — Single Premium",
+      "price": 390000,
+      "currency": "XOF",
+      "category": "Full Pass & Stay",
+      "includes": ["1 Full pass", "1 appt chambre + salon premium", "1 petit dej / jour", "Pack d'accueil", "1 t-shirt"],
+      "description": "Full pass + hébergement single premium (2 pers. max)",
+      "stock": 20
+    },
+    {
+      "slug": "fps-single-luxury",
+      "name": "Full Pass & Stay — Single Luxury",
+      "price": 415000,
+      "currency": "XOF",
+      "category": "Full Pass & Stay",
+      "includes": ["1 Full pass", "1 appt chambre + salon luxe", "1 petit dej / jour", "Pack d'accueil", "1 t-shirt", "Assistance"],
+      "description": "Full pass + hébergement single luxe (2 pers. max)",
+      "stock": 10
+    },
+    {
+      "slug": "fps-double-standard",
+      "name": "Full Pass & Stay — Double Standard",
+      "price": 515000,
+      "currency": "XOF",
+      "category": "Full Pass & Stay",
+      "includes": ["2 Full pass", "1 appt chambre + salon standard", "2 petit dej / jour"],
+      "description": "2 Full pass + hébergement double standard (2 pers. max)",
+      "stock": 30
+    },
+    {
+      "slug": "fps-double-premium",
+      "name": "Full Pass & Stay — Double Premium",
+      "price": 610000,
+      "currency": "XOF",
+      "category": "Full Pass & Stay",
+      "includes": ["2 Full pass", "Appartement 2 chambres + salon premium", "2 petit dej / jour", "Pack d'accueil", "2 t-shirts"],
+      "description": "2 Full pass + hébergement double premium (4 pers. max)",
+      "stock": 20
+    },
+    {
+      "slug": "fps-double-luxury",
+      "name": "Full Pass & Stay — Double Luxury",
+      "price": 655000,
+      "currency": "XOF",
+      "category": "Full Pass & Stay",
+      "includes": ["2 Full pass", "Appartement 2 chambres + salon luxe", "2 petit dej / jour", "Pack d'accueil", "2 t-shirts", "Assistance"],
+      "description": "2 Full pass + hébergement double luxe (4 pers. max)",
+      "stock": 10
+    },
+    {
+      "slug": "sye-standard",
+      "name": "Shape Your Experience — Standard",
+      "price": 30000,
+      "currency": "XOF",
+      "category": "Shape Your Experience",
+      "includes": ["1 chambre d'hôtel standard", "1 petit déjeuner / jour", "Assistance standard"],
+      "description": "Hébergement standard (2 pers. max) — tarif par nuit",
+      "stock": 50
+    },
+    {
+      "slug": "sye-premium",
+      "name": "Shape Your Experience — Premium",
+      "price": 35000,
+      "currency": "XOF",
+      "category": "Shape Your Experience",
+      "includes": ["1 chambre d'hôtel premium", "1 petit déjeuner / jour", "Assistance standard"],
+      "description": "Hébergement premium (2 pers. max) — tarif par nuit",
+      "stock": 50
+    }
+  ]
+}
