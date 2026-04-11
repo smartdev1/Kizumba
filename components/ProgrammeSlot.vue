@@ -87,49 +87,73 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  slot: {
-    type: Object,
-    required: true
-  },
-  slotKey: {
-    type: String,
-    required: true
-  }
-})
+<script setup lang="ts">
+// ── Types ──────────────────────────────────────────────────────────────────────
 
-const getSlotTypeLabel = (type) => {
-  const labels = {
-    'tourisme': '🌍 Tourisme',
-    'break': '⏸️ Pause',
-    'workshops': '💃 Workshops',
-    'workshops_social': '💃 Workshops & Social',
-    'workshops_masterclasses': '🎓 Masterclasses',
-    'social': '🎧 Social',
-    'welcome_party': '🥂 Welcome',
-    'competition': '⚔️ Battle',
-    'party': '🎉 Party',
-    'gala': '✨ Gala',
-    'brunch': '🍳 Brunch'
-  }
-  return labels[type] || type
+type SlotType =
+  | 'tourisme'
+  | 'break'
+  | 'workshops'
+  | 'workshops_social'
+  | 'workshops_masterclasses'
+  | 'social'
+  | 'welcome_party'
+  | 'competition'
+  | 'party'
+  | 'gala'
+  | 'brunch'
+
+interface ProgrammeSlotData {
+  type: SlotType
+  label?: string
+  title?: string
+  description?: string
+  note?: string
+  party?: string
+  dj_start?: string
+  activities?: string[]
 }
 
-const slotTypeClass = (type) => {
-  const map = {
-    'tourisme': 'border-green-500/30 text-green-400',
-    'break': 'border-gray-500/30 text-gray-400',
-    'workshops': 'border-blue-500/30 text-blue-400',
-    'workshops_social': 'border-blue-500/30 text-blue-400',
-    'workshops_masterclasses': 'border-purple-500/30 text-purple-400',
-    'social': 'border-purple-500/30 text-purple-400',
-    'welcome_party': 'border-gold-500/30 text-gold-400',
-    'competition': 'border-red-500/30 text-red-400',
-    'party': 'border-pink-500/30 text-pink-400',
-    'gala': 'border-gold-500/40 text-gold-400',
-    'brunch': 'border-orange-500/30 text-orange-400',
+// ── Props ──────────────────────────────────────────────────────────────────────
+
+defineProps<{
+  slot: ProgrammeSlotData
+  slotKey: string
+}>()
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+const getSlotTypeLabel = (type: SlotType): string => {
+  const labels: Record<SlotType, string> = {
+    tourisme:               '🌍 Tourisme',
+    break:                  '⏸️ Pause',
+    workshops:              '💃 Workshops',
+    workshops_social:       '💃 Workshops & Social',
+    workshops_masterclasses:'🎓 Masterclasses',
+    social:                 '🎧 Social',
+    welcome_party:          '🥂 Welcome',
+    competition:            '⚔️ Battle',
+    party:                  '🎉 Party',
+    gala:                   '✨ Gala',
+    brunch:                 '🍳 Brunch',
   }
-  return map[type] || 'border-white/20 text-white/40'
+  return labels[type] ?? type
+}
+
+const slotTypeClass = (type: SlotType): string => {
+  const map: Record<SlotType, string> = {
+    tourisme:               'border-green-500/30 text-green-400',
+    break:                  'border-gray-500/30 text-gray-400',
+    workshops:              'border-blue-500/30 text-blue-400',
+    workshops_social:       'border-blue-500/30 text-blue-400',
+    workshops_masterclasses:'border-purple-500/30 text-purple-400',
+    social:                 'border-purple-500/30 text-purple-400',
+    welcome_party:          'border-gold-500/30 text-gold-400',
+    competition:            'border-red-500/30 text-red-400',
+    party:                  'border-pink-500/30 text-pink-400',
+    gala:                   'border-gold-500/40 text-gold-400',
+    brunch:                 'border-orange-500/30 text-orange-400',
+  }
+  return map[type] ?? 'border-white/20 text-white/40'
 }
 </script>
